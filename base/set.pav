@@ -1,0 +1,76 @@
+
+record Set
+  table : Dict
+end
+
+object SetObj
+
+function repr(x : SetObj) return "so" end
+
+function Set()
+  return Set(Dict())
+end
+
+function Set(x : Int)
+  return Set(Dict(x))
+end
+
+function Set(x : List)
+  var s = Set()
+  for i = 0, i < len(x), i += 1 do
+    insert(s, get(x, i))
+  end
+  return s
+end
+
+function repr(x : Set)
+  var result = "Set("
+  for i = 0, i < len(x.table.table), i += 1 do
+    dispatch (get(x.table.table, i))
+      (kv : KeyValue)
+        result += repr(kv.key)
+        result += ", "
+    and
+      (e)
+    end
+  end
+  return result + ")"
+end
+
+function len(x : Set)
+  return x.table.size
+end
+
+function contains(x : Set, e)
+  return contains(x.table, e)
+end
+
+function insert(x : Set, e)
+  set(x.table, e, SetObj)
+end
+
+function remove(x : Set, e)
+  delete(x.table, e)
+end
+
+function map(x : Set, f : Function)
+  return Set(map(x.table, f, function(x) return x end))
+end
+
+function foreach(x : Set, f : Function)
+  for i = 0, i < len(x.table.table), i += 1 do
+    dispatch (get(x.table.table, i))
+      (kv : KeyValue) f(kv.key)
+    and
+      (e)
+    end
+  end
+end
+
+function filter(x : Set, f : Function)
+  return Set(filter(x.table, f, function(v) return true end))
+end
+
+function minus(x : Set, y : Set)
+  return filter(x, function(e) return !contains(y, e) end)
+end

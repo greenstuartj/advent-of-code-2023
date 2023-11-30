@@ -1,0 +1,111 @@
+
+function int(x : String)
+  return _str_to_int(x)
+end
+
+function int_opt(x : String)
+  var e = Error()
+  var n = _str_to_int(x, e)
+  if e.error then
+    return None
+  else
+    return Some(n)
+  end
+end
+
+function repr(x : String)
+  return "\"" + x + "\""
+end
+
+function print(x : String)
+  _print_str(x)
+end
+
+function len(x : String)
+  return _str_len(x)
+end
+
+function print(x)
+  _print_str(repr(x))
+end
+
+function println(x)
+  print(x)
+  print('\n')
+end
+
+function get(x : String, index : Int)
+  return _str_index(x, index)
+end
+
+function plus(x : String, y : String)
+  return _str_concat(x, y)
+end
+
+function plus(x : String, y : Char)
+  return x + _chr_to_str(y)
+end
+
+function plus(x : Char, y : String)
+  return _chr_to_str(x) + y
+end
+
+function append(x : String, y)
+  return x + y
+end
+
+function pad_left(x : String, c : Char, i : Int)
+  var s = x
+  while len(s) < i do
+    s = c + s
+  end
+  return s
+end
+
+function pad_right(x : String, c : Char, i : Int)
+  var s = x
+  while len(s) < i do
+    s = s + c
+  end
+  return s
+end
+
+function copy(x : String)
+  return x
+end
+
+function split(x : String, c : Char)
+  return split(x, _chr_to_str(c))
+end
+
+function split(x : String, s : String)
+  return _str_split(x, s)
+end
+
+function slice(x : String, from : Int, to : Int)
+  return slice(x, from, to, "")
+end
+
+function reverse(x : String)
+  return reverse(x, "")
+end
+
+function hash(x : String)
+  var h = 31
+  for i = 0, i < len(x), i += 1 do
+    h = h * int(get(x, 0))
+  end
+  return abs(h)
+end
+
+function trim(x : String)
+  return trim(x, " \n\t\r")
+end
+
+function trim(x : String, c : Char)
+  return trim(x, _chr_to_string(c))
+end
+
+function trim(x : String, s : String)
+  return _str_trim(x, s)
+end

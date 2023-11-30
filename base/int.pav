@@ -1,0 +1,87 @@
+
+function repr(x : Int)
+  return _int_to_str(x)
+end
+
+function negate(x : Int)
+  return _int_neg(x)
+end
+
+function abs(x : Int)
+  if x < 0 then
+    return -x
+  end
+  return x
+end
+
+function int(x : Int)
+  return x
+end
+
+function float(x : Int)
+  return _int_to_float(x)
+end
+
+function plus(x : Int, y : Int)
+  return _int_add(x, y)
+end
+
+function minus(x : Int, y : Int)
+  return _int_sub(x, y)
+end
+
+function multiply(x : Int, y : Int)
+  return _int_mul(x, y)
+end
+
+function divide(x : Int, y : Int)
+  return _int_div(x, y)
+end
+
+function modulo(x : Int, y : Int)
+  return _int_mod(x, y)
+end
+
+function eq(x : Int, y : Int)
+  return _int_eq(x, y)
+end
+
+function ne(x : Int, y : Int)
+  return _int_ne(x, y)
+end
+
+function lt(x : Int, y : Int)
+  return _int_lt(x, y)
+end
+
+function le(x : Int, y : Int)
+  return _int_le(x, y)
+end
+
+function gt(x : Int, y : Int)
+  return _int_gt(x, y)
+end
+
+function ge(x : Int, y : Int)
+  return _int_ge(x, y)
+end
+
+function max(x, y)
+  if x > y then
+    return x
+  else
+    return y
+  end
+end
+
+function min(x, y)
+  if x < y then
+    return x
+  else
+    return y
+  end
+end
+
+function hash(x : Int)
+  return x
+end

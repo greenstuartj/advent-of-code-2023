@@ -1,0 +1,27 @@
+
+function repr(x : Bool)
+  if x then
+    return "true"
+  else
+    return "false"
+  end
+end
+
+function not(x : Bool)
+  if x then
+    return false
+  end
+  return true
+end
+
+function not(x)
+  return false
+end
+
+function int(x : Bool)
+  if x then
+    return 1
+  else
+    return 0
+  end
+end

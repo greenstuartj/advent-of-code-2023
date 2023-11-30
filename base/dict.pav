@@ -1,0 +1,213 @@
+
+record KeyValue
+  key
+  value
+end
+
+function repr(x : KeyValue)
+  return repr(x.key) + ": " + repr(x.value)
+end
+
+object Empty
+
+function repr(x : Empty)
+  return "<empty>"
+end
+
+object DictTomb
+
+function repr(x : DictTomb)
+  return "<tomb>"
+end
+
+function is_empty(x : Empty)
+  return true
+end
+
+function is_empty(x : DictTomb)
+  return true
+end
+
+function is_empty(x : KeyValue)
+  return false
+end
+
+function allowed_slot(x : Empty, key)
+  return true
+end
+
+function allowed_slot(x : DictTomb, key)
+  return true
+end
+
+function allowed_slot(x : KeyValue, key)
+  return x.key == key
+end
+
+function same_key(x : Empty, key)
+  return false
+end
+
+function same_key(x : DictTomb, key)
+  return false
+end
+
+function same_key(x : KeyValue, key)
+  return x.key == key
+end
+
+record Dict
+  table : List
+  size : Int
+end
+
+function Dict(size : Int)
+  return Dict(repeat(Empty, size), 0)
+end
+
+function Dict()
+  return Dict(100)
+end
+
+function Dict(x : List)
+  var d = Dict(len(x)*2)
+  for i = 0, i < len(x)-1, i += 2 do
+    set(d, get(x, i), get(x, i+1))
+  end
+  return d
+end
+
+function len(x : Dict)
+  return x.size
+end
+
+function set(dict : Dict, key, value)
+  if float(len(dict.table)) * 0.5 < float(dict.size) then
+    resize(dict)
+  end
+  var h = abs(hash(key)) % len(dict.table)
+  var g = get(dict.table, h)
+  while !allowed_slot(g, key) do
+    h = (h + 1) % len(dict.table)
+    g = get(dict.table, h)
+  end
+  set(dict.table, h, KeyValue(key, value))
+  if !same_key(g, key) then
+    dict.size = dict.size + 1
+  end
+end
+
+function resize(dict : Dict)
+  var nd = Dict(len(dict.table)*2)
+  var ot = dict.table
+  function reset(x : KeyValue)
+    set(nd, x.key, x.value)
+  end
+  function reset(x)
+  end
+  for i = 0, i < len(ot), i += 1 do
+    reset(get(ot, i))
+  end
+  dict.table = nd.table
+  dict.size = nd.size
+end
+
+function contains(dict : Dict, key)
+  var h = abs(hash(key)) % len(dict.table)
+  var g = get(dict.table, h)
+  while !same_key(g, key) do
+    if is_empty(g) then
+      return false
+    end
+    h = (h + 1) % len(dict.table)
+    g = get(dict.table, h)
+  end
+  return true
+end
+
+function get(dict : Dict, key)
+  var h = abs(hash(key)) % len(dict.table)
+  var g = get(dict.table, h)
+  while !same_key(g, key) do
+    if is_empty(g) then
+      _panic("dict key not found")
+    end
+    h = (h + 1) % len(dict.table)
+    g = get(dict.table, h)
+  end
+  return g.value
+end
+
+function delete(dict : Dict, key)
+  var start = abs(hash(key)) % len(dict.table)
+  var h = start
+  var g = get(dict.table, h)
+  while !same_key(g, key) do
+    h = (h + 1) % len(dict.table)
+    g = get(dict.table, h)
+    if h == start then
+      return
+    end
+  end
+  if same_key(g, key) then
+    set(dict.table, h, DictTomb)
+    dict.size = dict.size - 1
+  end
+end
+
+function repr(x : Dict)
+  var n = x.size
+  var s = "Dict("
+  for i = 0, i < len(x.table), i += 1 do
+    var e = get(x.table, i)
+    if !is_empty(e) then
+      n = n - 1
+      s = s + repr(e)
+      if n != 0 then
+        s = s + ", "
+      end
+    end
+  end
+  s = s + ")"
+  return s
+end
+
+function map(x : Dict, key_f : Function, value_f : Function)
+  var result = Dict()
+  for i = 0, i < len(x.table), i += 1 do
+    var e = get(x.table, i)
+    if !is_empty(e) then # not well typed
+      set(result, key_f(e.key), value_f(e.value))
+    end
+  end
+  return result
+end
+
+function map(x : Dict, f : Function)
+  return map(x, function(x) return x end, f)
+end
+
+function foreach(x : Dict, f : Function)
+  for i = 0, i < len(x.table), i += 1 do
+    dispatch (get(x.table, i))
+      (kv : KeyValue) f(kv.key, kv.value)
+    and
+      (e)
+    end
+  end
+end
+
+function filter(x : Dict, key_f : Function, value_f : Function)
+  var result = Dict(len(x.table))
+  for i = 0, i < len(x.table), i += 1 do
+    dispatch (get(x.table, i))
+      (kv : KeyValue)
+        if key_f(kv.key) & value_f(kv.value) then
+          set(result, kv.key, kv.value)
+        end
+    and
+      (e)
+    end
+  end
+  return result
+end

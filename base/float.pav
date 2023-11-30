@@ -1,0 +1,56 @@
+
+function repr(x : Float)
+  return _float_to_str(x)
+end
+
+function negate(x : Float)
+  return _float_neg(x)
+end
+
+function float(x : Float)
+  return x
+end
+
+function int(x : Float)
+  return _float_to_int(x)
+end
+
+function plus(x : Float, y : Float)
+  return _float_add(x, y)
+end
+
+function minus(x : Float, y : Float)
+  return _float_sub(x, y)
+end
+
+function multiply(x : Float, y : Float)
+  return _float_mul(x, y)
+end
+
+function divide(x : Float, y : Float)
+  return _float_div(x, y)
+end
+
+function eq(x : Float, y : Float)
+  return _float_eq(x, y)
+end
+
+function ne(x : Float, y : Float)
+  return _float_ne(x, y)
+end
+
+function lt(x : Float, y : Float)
+  return _float_lt(x, y)
+end
+
+function le(x : Float, y : Float)
+  return _float_le(x, y)
+end
+
+function gt(x : Float, y : Float)
+  return _float_gt(x, y)
+end
+
+function ge(x : Float, y : Float)
+  return _float_ge(x, y)
+end

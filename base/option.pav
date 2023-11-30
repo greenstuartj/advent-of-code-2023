@@ -1,0 +1,23 @@
+
+object None
+
+record Some
+  value
+end
+
+function repr(x : None)
+  return "None"
+end
+
+function repr(x : Some)
+  return "Some(" + repr(x.value) + ")"
+end
+
+function bind(x : None, f : Function)
+  return x
+end
+
+function bind(x : Some, f : Function)
+  return Some(f(x.value))
+end
+

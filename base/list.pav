@@ -1,0 +1,244 @@
+
+function len(x : List)
+  return _list_len(x)
+end
+
+function get(x : List, index : Int)
+  return _list_index(x, index)
+end
+
+function set(x : List, index : Int, value)
+  _list_set(x, index, value)
+end
+
+function append(x : List, y)
+  _list_append(x, y)
+  return x
+end
+
+function plus(x : List, y : List)
+  var result = copy(x)
+  for i = 0, i < len(y), i += 1 do
+    append(result, get(y, i))
+  end
+  return result
+end
+
+function map(x : List, f : Function)
+  var result = List()
+  for i = 0, i < len(x), i += 1 do
+    append(result, f(get(x, i)))
+  end
+  return result
+end
+
+function foreach(x : List, f : Function)
+  for i = 0, i < len(x), i += 1 do
+    f(get(x, i))
+  end
+end
+
+function range(from, to, step)
+  var result = List()
+  for i = from, i < to, i += step do
+    append(result, i)
+  end
+  return result
+end
+
+function range(from, to)
+  return range(from, to, 1)
+end
+
+function reduce(x : List, initial, f)
+  var result = initial
+  for i = 0, i < len(x), i += 1 do
+    result = f(result, get(x, i))
+  end
+  return result
+end
+
+function sum(x : List)
+  return reduce(x, 0, plus)
+end
+
+function product(x : List)
+  return reduce(x, 1, multiply)
+end
+
+function scan(x : List, f)
+  var result = List()
+  for i = 1, i <= len(x), i += 1 do
+    append(result, f(slice(x, 0, i)))
+  end
+  return result
+end
+
+function window(x : List, size : Int, f)
+  var result = List()
+  var from = 0
+  var to   = from+size
+  while to <= len(x) do
+    append(result, f(slice(x, from, to)))
+    from = from + 1 # to
+    to   = to + 1   # from+size
+  end
+  
+  return result
+end
+
+function repeat(x, times : Int)
+  var result = List()
+  for i = 0, i < times, i += 1 do
+    append(result, x)
+  end
+  return result
+end
+
+function repr(x : List)
+  var s = "["
+  for i = 0, i < len(x), i += 1 do
+    s = s + repr(get(x, i))
+    if i != len(x)-1 then
+      s = s + ", "
+    end
+  end
+  s = s + "]"
+  return s
+end
+
+function copy(x : List)
+  var result = List()
+  for i = 0, i < len(x), i += 1 do
+    append(result, get(x, i))
+  end
+  return result
+end
+
+function split(x : List, s)
+  return split(x, s, List())
+end
+
+function split(x, sep, initial)
+  var result = List()
+  var temp = copy(initial)
+  for i = 0, i < len(x), i += 1 do
+    var e = get(x, i)
+    if e == sep then
+      append(result, temp)
+      temp = copy(initial)
+    else
+      temp = append(temp, e)
+    end
+  end
+  append(result, temp)
+  return result
+end
+
+function slice(x, from : Int, to : Int, initial)
+  var result = copy(initial)
+  for i = from, i < to, i +=1  do
+    result = append(result, get(x, i))
+  end
+  return result
+end
+
+function slice(x : List, from : Int, to : Int)
+  return slice(x, from, to, List())
+end
+
+function slice(x, from)
+  return slice(x, from, len(x))
+end
+
+function starts_with(x, y)
+  if len(x) < len(y) then
+    return false
+  end
+  for i = 0, i < len(y), i += 1 do
+    if get(x, i) != get(x, i) then
+      return false
+    end
+  end
+  return true
+end
+
+function reverse(x, initial)
+  var result = copy(initial)
+  for i = len(x)-1, i >= 0, i -= 1 do
+    result = append(result, get(x, i))
+  end
+  return result
+end
+
+function reverse(x : List)
+  return reverse(x, List())
+end
+
+function zip(x, y)
+  return zip(x, y, List)
+end
+
+function zip(x, y, f)
+  var result = List()
+  for i = 0, i < min(len(x), len(y)), i += 1 do
+    result = append(result, f(get(x, i), get(y, i)))
+  end
+  return result
+end
+
+function indices(x, f : Function)
+  var result = List()
+  for i = 0, i < len(x), i += 1 do
+    if f(get(x, i)) then
+      result = append(result, i)
+    end
+  end
+  return result
+end
+
+function eq(x, y)
+  if len(x) != len(y) then
+    return false
+  end
+  for i = 0, i < len(x), i += 1 do
+    if get(x, i) != get(y, i) then
+      return false
+    end
+  end
+  return true
+end
+
+function ne(x, y)
+  return !(x==y)
+end
+
+function lt(x, y)
+  for i = 0, i < min(len(x), len(y)), i += 1 do
+    if get(x, i) < get(y, i) then
+      return true
+    elif get(x, i) > get(y, i) then
+      return false
+    end
+  end
+  return len(x) < len(y)
+end
+
+function le(x, y)
+  return x < y | x == y
+end
+
+function gt(x, y)
+  for i = 0, i < min(len(x), len(y)), i += 1 do
+    if get(x, i) > get(y, i) then
+      return true
+    elif get(x, i) < get(y, i) then
+      return false
+    end
+  end
+  return len(x) > len(y)
+end
+
+function ge(x, y)
+  return x > y | x == y
+end

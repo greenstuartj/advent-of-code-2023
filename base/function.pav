@@ -1,0 +1,4 @@
+
+function repr(x : Function)
+  return "<f>"
+end

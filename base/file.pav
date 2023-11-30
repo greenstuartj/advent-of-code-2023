@@ -1,0 +1,4 @@
+
+function read_file(name : String)
+  return trim(_read_file(name))
+end

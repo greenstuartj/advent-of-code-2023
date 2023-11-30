@@ -1,0 +1,66 @@
+
+
+function repr(x : Char)
+  return "'" + _chr_to_str(x) + "'"
+end
+
+function print(x : Char)
+  print(_chr_to_str(x))
+end
+
+function int(x : Char)
+  return _chr_to_int(x)
+end
+
+function char(x : Int)
+  return _int_to_chr(x)
+end
+
+function plus(x : Char, y : Int)
+  return char(int(x) + y)
+end
+
+function plus(x : Int, y : Char)
+  return char(x + int(y))
+end
+
+function plus(x : Char, y : Char)
+  return _chr_to_str(x) + _chr_to_str(y)
+end
+
+function minus(x : Char, y : Int)
+  return char(int(x) - y)
+end
+
+function minus(x : Int, y : Char)
+  return char(x - int(y))
+end
+
+function eq(x : Char, y : Char)
+  return int(x) == int(y)
+end
+
+function ne(x : Char, y : Char)
+  return int(x) != int(y)
+end
+
+function lt(x : Char, y : Char)
+  return int(x) < int(y)
+end
+
+function le(x : Char, y : Char)
+  return int(x) <= int(y)
+end
+
+function gt(x : Char, y : Char)
+  return int(x) > int(y)
+end
+
+function ge(x : Char, y : Char)
+  return int(x) >= int(y)
+end
+
+function is_digit(x : Char)
+  return '0' <= x & x <= '9'
+end
+
