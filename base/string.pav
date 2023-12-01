@@ -50,6 +50,10 @@ function plus(x : Char, y : String)
   return _chr_to_str(x) + y
 end
 
+function plus(x : Char, y : String)
+  return _chr_to_str(x) + y
+end
+
 function append(x : String, y)
   return x + y
 end
