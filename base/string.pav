@@ -113,3 +113,15 @@ end
 function replace(x : String, from : String, to : String)
   return _str_replace(x, from, to)
 end
+
+function eq(x : String, y : String)
+  return c_eq(x, y)
+end
+
+function lt(x : String, y : String)
+  return c_lt(x, y)
+end
+
+function gt(x : String, y : String)
+  return c_gt(x, y)
+end

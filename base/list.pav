@@ -207,7 +207,7 @@ function indices(x, f : Function)
   return result
 end
 
-function eq(x, y)
+function c_eq(x, y)
   if len(x) != len(y) then
     return false
   end
@@ -219,11 +219,15 @@ function eq(x, y)
   return true
 end
 
+function eq(x : List, y : List)
+  return c_eq(x, y)
+end
+
 function ne(x, y)
   return !(x==y)
 end
 
-function lt(x, y)
+function c_lt(x, y)
   for i = 0, i < min(len(x), len(y)), i += 1 do
     if get(x, i) < get(y, i) then
       return true
@@ -234,11 +238,15 @@ function lt(x, y)
   return len(x) < len(y)
 end
 
+function lt(x : List, y : List)
+  return c_lt(x, y)
+end
+
 function le(x, y)
   return x < y | x == y
 end
 
-function gt(x, y)
+function c_gt(x, y)
   for i = 0, i < min(len(x), len(y)), i += 1 do
     if get(x, i) > get(y, i) then
       return true
@@ -247,6 +255,10 @@ function gt(x, y)
     end
   end
   return len(x) > len(y)
+end
+
+function gt(x : List, y : List)
+  return c_gt(x, y)
 end
 
 function ge(x, y)
