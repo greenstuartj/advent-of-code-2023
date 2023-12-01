@@ -1,15 +1,15 @@
 include "../base/base.pav"
 
 var names = Dict()
-set(names, "one", "1")
-set(names, "two", "2")
+set(names, "one",   "1")
+set(names, "two",   "2")
 set(names, "three", "3")
-set(names, "four", "4")
-set(names, "five", "5")
-set(names, "six", "6")
+set(names, "four",  "4")
+set(names, "five",  "5")
+set(names, "six",   "6")
 set(names, "seven", "7")
 set(names, "eight", "8")
-set(names, "nine", "9")
+set(names, "nine",  "9")
 
 function find_first(line, names)
   for start = 0, start < len(line), start += 1 do
@@ -29,7 +29,7 @@ function find_last(line, names)
     if to < len(line) & is_digit(get(line, to)) then
       return get(line, to)
     end
-    for start = to - 2, start >= 0 & to <= len(line) & start > to - 6, start -= 1 do
+    for start = to - 2, start >= 0 & start > to - 6, start -= 1 do
       if contains(names, slice(line, start, to)) then
         return get(names, slice(line, start, to))
       end
@@ -41,19 +41,13 @@ function get_number(line, names)
   return int(find_first(line, names) + find_last(line, names))
 end
 
-function part1(file)
-  return sum(map(split(read_file(file), "\n"), function(line)
-                                                 return get_number(line, Dict())
-                                               end))
-end
-
-function part2(file)
+function solve(file, names)
   return sum(map(split(read_file(file), "\n"), function(line)
                                                  return get_number(line, names)
                                                end))
 end
 
 for i = 2, i < len(_args()), i += 1 do
-  println(part1(get(_args(), i)))
-  println(part2(get(_args(), i)))
+  println(solve(get(_args(), i), Dict()))
+  println(solve(get(_args(), i), names))
 end
