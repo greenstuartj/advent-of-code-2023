@@ -32,6 +32,16 @@ function map(x : List, f : Function)
   return result
 end
 
+function filter(x, f : Function)
+  var result = List()
+  for i = 0, i < len(x), i += 1 do
+    if f(get(x, i)) then
+      append(result, get(x, i))
+    end
+  end
+  return result
+end
+
 function foreach(x : List, f : Function)
   for i = 0, i < len(x), i += 1 do
     f(get(x, i))

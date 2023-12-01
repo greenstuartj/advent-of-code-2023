@@ -109,3 +109,7 @@ end
 function trim(x : String, s : String)
   return _str_trim(x, s)
 end
+
+function replace(x : String, from : String, to : String)
+  return _str_replace(x, from, to)
+end

@@ -1,0 +1,46 @@
+include "../base/base.pav"
+
+function expand(line)
+  var result = ""
+  var i = 0
+  for i = 0, i < len(line), i += 1 do
+    if slice(line, i, min(len(line), i + len("one"))) == "one" then
+      result += "1"
+    elif slice(line, i, min(len(line), i + len("two"))) == "two" then
+      result += "2"
+    elif slice(line, i, min(len(line), i + len("three"))) == "three" then
+      result += "3"
+    elif slice(line, i, min(len(line), i + len("four"))) == "four" then
+      result += "4"
+    elif slice(line, i, min(len(line), i + len("five"))) == "five" then
+      result += "5"
+    elif slice(line, i, min(len(line), i + len("six"))) == "six" then
+      result += "6"
+    elif slice(line, i, min(len(line), i + len("seven"))) == "seven" then
+      result += "7"
+    elif slice(line, i, min(len(line), i + len("eigth"))) == "eight" then
+      result += "8"
+    elif slice(line, i, min(len(line), i + len("nine"))) == "nine" then
+      result += "9"
+    else
+      result += get(line, i)
+    end
+  end
+  return result
+end
+
+function solve(lines)
+  var line_digits = map(lines, function(line)
+                                 return filter(line, is_digit)
+                               end)
+  var numbers = map(line_digits, function(ds)
+                                   return int(get(ds, 0) + get(ds, len(ds)-1))
+                                 end)
+  println(sum(numbers))
+end
+
+for i = 2, i < len(_args()), i += 1 do
+  var lines = split(read_file(get(_args(), i)), "\n")
+  solve(lines)
+  solve(map(lines, expand))
+end
