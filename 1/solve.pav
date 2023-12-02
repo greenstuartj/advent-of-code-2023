@@ -29,7 +29,7 @@ function find_last(line, names)
     if to < len(line) & is_digit(get(line, to)) then
       return get(line, to)
     end
-    for start = to - 3, start >= 0 & to <= len(line) & start > to - 6, start -= 1 do
+    for start = to - 3, start >= 0 & start > to - 6, start -= 1 do
       if contains(names, slice(line, start, to)) then
         return get(names, slice(line, start, to))
       end
