@@ -97,6 +97,14 @@ function set(dict : Dict, key, value)
   end
 end
 
+function update(dict : Dict, key, value, conflict_f : Function)
+  if contains(dict, key) then
+    set(dict, key, conflict_f(get(dict, key), value))
+  else
+    set(dict, key, value)
+  end
+end
+
 function resize(dict : Dict)
   var nd = Dict(len(dict.table)*2)
   var ot = dict.table
@@ -203,6 +211,36 @@ function filter(x : Dict, key_f : Function, value_f : Function)
     dispatch (get(x.table, i))
       (kv : KeyValue)
         if key_f(kv.key) & value_f(kv.value) then
+          set(result, kv.key, kv.value)
+        end
+    and
+      (e)
+    end
+  end
+  return result
+end
+
+function reduce(x : Dict, initial, f : Function)
+  var result = initial
+  for i = 0, i < len(x.table), i += 1 do
+    dispatch (get(x.table, i))
+      (kv : KeyValue)
+        result = f(result, kv.value)
+    and
+      (e)
+    end
+  end
+  return result
+end
+
+function merge(d1 : Dict, d2 : Dict, confict_f : Function)
+  var result = d1
+  for i = 0, i < len(x.table), i += 1 do
+    dispatch (get(x.table, i))
+      (kv : KeyValue)
+        if contains(result, kv.key) then
+          set(result, kv.key, conflict_f(get(result, kv.key), kv.value))
+        else
           set(result, kv.key, kv.value)
         end
     and

@@ -1,0 +1,76 @@
+include "../base/base.pav"
+
+var lines = split(read_file(get(_args(), 2)), "\n")
+
+var games = List()
+
+record Pair
+  colour : String
+  number : Int
+end
+
+function repr(p : Pair)
+  return "Pair(" + repr(p.colour) + ": " + repr(p.number) + ")"
+end
+
+function parse_game(line, games)
+  var split_line = split(line, ": ")
+  var results_section = get(split_line, 1)
+  var results_sections = split(results_section, "; ")
+  var sections = List()
+  for i = 0, i < len(results_sections), i += 1 do
+    var draws = split(get(results_sections, i), ", ")
+    var draw = List()
+    for j = 0, j < len(draws), j += 1 do
+      var pair = split(get(draws, j), " ")
+      append(draw, Pair(get(pair, 1), int(get(pair, 0))))
+    end
+    append(sections, draw)
+  end
+  append(games, sections)
+end
+
+for i = 0, i < len(lines), i += 1 do
+  parse_game(get(lines, i), games)
+end
+
+var validation = Dict()
+set(validation, "red",   12)
+set(validation, "green", 13)
+set(validation, "blue",  14)
+
+var invalid_games = List()
+
+for i = 0, i < len(games), i += 1 do
+  var draws = get(games, i)
+  for j = 0, j < len(draws), j += 1 do
+    var draw = get(draws, j)
+    for k = 0, k < len(draw), k += 1 do
+      var pair = get(draw, k)
+      if pair.number > get(validation, pair.colour) then
+        append(invalid_games, i+1)
+        break
+      end
+    end
+  end
+end
+
+var valid_games = Set(range(1, len(games)+1)) - Set(invalid_games)
+
+var part1 = 0
+foreach(valid_games, function(id) part1 += id end)
+
+var part2 = 0
+foreach(games, function(game)
+  var min_cubes = Dict()
+  for i = 0, i < len(game), i += 1 do
+    reduce(get(game, i), min_cubes, function(d, p)
+      update(d, p.colour, p.number, max)
+      return d
+    end)
+  end
+  part2 += reduce(min_cubes, 1, function(ps, n) return ps * n end)
+end)
+
+println(part1)
+println(part2)
