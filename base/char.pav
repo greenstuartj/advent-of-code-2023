@@ -64,3 +64,6 @@ function is_digit(x : Char)
   return '0' <= x & x <= '9'
 end
 
+function hash(x : Char)
+  return int(x) * 31
+end

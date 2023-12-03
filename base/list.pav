@@ -7,6 +7,13 @@ function get(x : List, index : Int)
   return _list_index(x, index)
 end
 
+function get_or(x, index : Int, default)
+  if index >= len(x) | index < 0 then
+    return default
+  end
+  return get(x, index)
+end
+
 function set(x : List, index : Int, value)
   _list_set(x, index, value)
 end

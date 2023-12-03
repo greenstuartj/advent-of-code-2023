@@ -15,7 +15,7 @@ function Set(x : Int)
   return Set(Dict(x))
 end
 
-function Set(x : List)
+function Set(x)
   var s = Set()
   for i = 0, i < len(x), i += 1 do
     insert(s, get(x, i))

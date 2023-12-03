@@ -1,0 +1,123 @@
+include "../base/base.pav"
+
+var schematic = read_file(get(_args(), 2))
+
+record Coord
+  row : Int
+  col : Int
+end
+
+function repr(c : Coord)
+  return "Coord(" + repr(c.row) + ", " + repr(c.col) + ")"
+end
+
+function hash(c : Coord)
+  return c.row * c.col * 31
+end
+
+function eq(c1 : Coord, c2 : Coord)
+  return c1.row == c2.row & c1.col == c2.col
+end
+
+record Pair
+  first
+  second
+end
+
+function hash(p : Pair)
+  return hash(p.first) * hash(p.second) * 31
+end
+
+function eq(p1 : Pair, p2 : Pair)
+  return p1.first == p2.first & p1.second == p2.second
+end
+
+function repr(p : Pair)
+  return "Pair(" + repr(p.first) + ", " + repr(p.second) + ")"
+end
+
+var numbers = List()
+
+var row = 0
+var col = 0
+var temp_number = ""
+var temp_coords = Set()
+var i = 0
+while i < len(schematic) do
+  if !is_digit(get(schematic, i)) then
+    if temp_number != "" then
+      append(numbers, Pair(int(temp_number), temp_coords))
+      temp_number = ""
+      temp_coords = Set()
+    end
+  end
+  if get(schematic, i) != '\n' then
+    if is_digit(get(schematic, i)) then
+      temp_number += get(schematic, i)
+      insert(temp_coords, Coord(row, col))
+    end
+    col += 1
+  else
+    row += 1
+    col = 0
+  end
+  i += 1
+end
+
+var grid = split(schematic, "\n")
+
+function neighbours(c : Coord)
+  var neighbours = List()
+  for i = -1, i < 2, i += 1 do
+    for j = -1, j < 2, j += 1 do
+      append(neighbours, Coord(c.row+i, c.col+j))
+    end
+  end
+  return neighbours
+end
+
+var number_parts = List()
+
+var non_part = Set("0123456789.")
+foreach(numbers, function(p)
+  var surrounding = Set()
+  foreach(p.second, function(c)
+    foreach(neighbours(c), function(nb)
+      var cell = get_or(get_or(grid, nb.row, List()), nb.col, '.')
+      if !contains(non_part, cell) then
+        insert(surrounding, Pair(cell, nb))
+      end
+    end)
+  end)
+  append(number_parts, Pair(p.first, surrounding))
+end)
+
+var part1 = 0
+foreach(number_parts, function(p)
+  if len(p.second) != 0 then
+    part1 += p.first
+  end
+end)
+
+var parts_number = Dict()
+foreach(number_parts, function(p)
+  foreach(p.second, function(s)
+    if s.first == '*' then
+      if contains(parts_number, s.second) then
+        append(get(parts_number, s.second), p.first)
+      else
+        set(parts_number, s.second, List(p.first))
+      end  
+    end
+  end)
+end)
+
+var part2 = 0
+foreach(parts_number, function(c, ns)
+  if len(ns) == 2 then
+    part2 += get(ns, 0) * get(ns, 1)
+  end
+end)
+
+println(part1)
+println(part2)
