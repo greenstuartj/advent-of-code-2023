@@ -1,0 +1,74 @@
+include "../base/base.pav"
+
+record Card
+  number : Int
+  winning : Set
+  have : Set
+end
+
+function repr(c : Card)
+  return "Card(" + repr(c.number) + ", " + repr(c.winning) + ", " + repr(c.have) + ")"
+end
+
+var lines = split(read_file(get(_args(), 2)), "\n")
+
+function parse_line(line)
+  var top = split(line, ": ")
+  var card_section = split(get(top, 0), " ")
+  var card_number = int(get(card_section, len(card_section)-1))
+  var winning_have = split(get(top, 1), " | ")
+  return Card(card_number,
+              Set(map(split(get(winning_have, 0), " "), int)),
+              Set(map(split(get(winning_have, 1), " "), int)) - Set(List(0))) 
+end
+
+var cards = map(lines, parse_line)
+
+var part1 = 0
+
+var wins_per_card = Dict()
+
+foreach(cards, function(card)
+  var match = intersection(card.winning, card.have)
+  set(wins_per_card, card.number, len(match))
+  var score = 0
+  if len(match) > 0 then
+    score = 1
+  end
+  for i = len(match)-1, i > 0, i -= 1 do
+    score = score * 2
+  end
+  part1 += score
+end)
+
+println(part1)
+
+var memo = Dict()
+
+function r(card_number)
+  if contains(memo, card_number) then
+    return get(memo, card_number)
+  end
+  var wins = get(wins_per_card, card_number)
+  if wins == 0 then
+    set(memo, card_number, 0)
+    return 0
+  end
+  var number_of_cards = wins
+  for i = 1, i <= wins, i += 1 do
+    number_of_cards += r(card_number+i)
+  end
+  set(memo, card_number, number_of_cards)
+  return number_of_cards
+end
+
+foreach(cards, function(card)
+  r(card.number)
+end)
+
+var part2 = len(cards)
+foreach(memo, function(cn, n)
+  part2 += n
+end)
+
+println(part2)
