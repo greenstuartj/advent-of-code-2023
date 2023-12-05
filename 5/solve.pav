@@ -103,28 +103,33 @@ function lookup(rl : List, rml : List)
   return result
 end
 
-var almenac = split(read_file("input.txt"), "\n\n")
+function solve(file)
+  var almenac = split(read_file(file), "\n\n")
 
-var seeds = map(split(get(split(get(almenac, 0), ": "), 1), " "), function(n)
-  return Range(int(n), int(n))
-end)
+  var seeds = map(split(get(split(get(almenac, 0), ": "), 1), " "), function(n)
+    return Range(int(n), int(n))
+  end)
 
-var maps = map(slice(almenac, 1), parse_map)
+  var maps = map(slice(almenac, 1), parse_map)
 
-var seed_ranges = List()
-for i = 0, i < len(seeds)-1, i += 2 do
-  var r = Range(get(seeds, i).from, get(seeds, i).from+get(seeds, i+1).from-1)
-  append(seed_ranges, r)
+  var seed_ranges = List()
+  for i = 0, i < len(seeds)-1, i += 2 do
+    var r = Range(get(seeds, i).from, get(seeds, i).from+get(seeds, i+1).from-1)
+    append(seed_ranges, r)
+  end
+
+  function run(seeds)
+    var s = seeds
+    foreach(maps, function(m)
+      s = lookup(s, m)
+    end)
+    println(reduce(map(s, function(x) return x.from end), min))
+  end
+
+  run(seeds)
+  run(seed_ranges)
 end
 
-var s1 = seeds
-foreach(maps, function(m)
-  s1 = lookup(s1, m)
-end)
-println(reduce(map(s1, function(x) return x.from end), min))
-
-var s2 = seed_ranges
-foreach(maps, function(m)
-  s2 = lookup(s2, m)
-end)
-println(reduce(map(s2, function(x) return x.from end), min))
+for i = 2, i < len(_args()), i += 1 do
+  solve(get(_args(), i))
+end
