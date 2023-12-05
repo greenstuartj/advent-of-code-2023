@@ -2,15 +2,15 @@ include "../base/base.pav"
 
 record Range
   from : Int
-  dist : Int
+  to   : Int
 end
 
 function repr(x : Range)
-  return "R(" + repr(x.from) + ", " + repr(x.dist) + ")"
+  return "Range(" + repr(x.from) + ", " + repr(x.to) + ")"
 end
 
 function is_subrange(sr : Range, r : Range)
-  return sr.from >= r.from & sr.from+sr.dist <= r.from+r.dist
+  return sr.from >= r.from & sr.to <= r.to
 end
 
 record RangeMap
@@ -19,79 +19,63 @@ record RangeMap
 end
 
 function repr(x : RangeMap)
-  return "RM(" + repr(x.from) + ", " + repr(x.to) + ")"
+  return "RangeMap(" + repr(x.from) + ", " + repr(x.to) + ")"
 end
 
 function RangeMap(line : String)
   var r = map(split(line, " "), int)
-  return RangeMap(Range(get(r, 0), get(r, 2)), Range(get(r, 1), get(r, 2)))
+  var from = Range(get(r, 1), get(r, 1)+get(r, 2)-1)
+  var to   = Range(get(r, 0), get(r, 0)+get(r, 2)-1)
+  return RangeMap(from, to)
 end
 
 function parse_map(m : String)
-  return sort_with(map(slice(split(m, "\n"), 1), RangeMap), function(r1, r2) return r1.to.from < r2.to.from end)
+  return sort_with(map(slice(split(m, "\n"), 1), RangeMap), function(r1, r2)
+    return r1.from.from < r2.from.from
+  end)
 end
 
 function split(r : Range, rml : List)
-  if r.dist == 1 then return List(r) end
+  var sr = Range(r.from, r.to)
+  var rm = Range(get(rml, 0).from.from, get(rml, 0).from.to)
   var result = List()
-  var sr = Range(r.from, r.dist)
-  var rm = Range(get(rml, 0).to.from, get(rml, 0).to.dist)
   var i = 0
   while i < len(rml) do
-    rm = Range(get(rml, i).to.from, get(rml, i).to.dist)
-    
-    # larger than current range map
-    if sr.from >= rm.from+rm.dist then
-      #println(1)
+    rm = Range(get(rml, i).from.from, get(rml, i).from.to)
+    if sr.from > rm.to then
       i += 1
-      
-    # fully enclosed by current range map 
     elif is_subrange(sr, rm) then
-      #println(2)
       append(result, sr)
       return result
-      
-    # smaller than all remaining range maps
-    elif sr.from+sr.dist <= rm.from then
-      #println(3)
+    elif sr.to < rm.from then
       append(result, sr)
       return result
-      
-    # extends beyond range map start
-    elif sr.from < rm.from & sr.from+sr.dist >= rm.from then
-      #println(4)
-      append(result, Range(sr.from, rm.from-sr.from))
-      # range map fully enclosed
-      if is_subrange(rm, sr) then
-        #println("4a")
-        append(result, rm)
-	sr = Range(rm.from+rm.dist, sr.dist-(rm.from+rm.dist))
-	i += 1
-      # does not reach end of range map
-      else
-        #println("4b")
-        sr = Range(rm.from, sr.dist - (rm.from-sr.from))
-      end
-
-    # 
-    elif rm.from+rm.dist >= sr.from then
-      append(result, Range(sr.from, (rm.from+rm.dist)-sr.from))
-      sr = Range(rm.from+rm.dist, sr.dist-((rm.from+rm.dist)-sr.from))
+    elif sr.from < rm.from & sr.to >= rm.from & sr.to < rm.to then
+      append(result, Range(sr.from, rm.from-1))
+      append(result, Range(rm.from, sr.to))
+      return result
+    elif sr.from <= rm.from & sr.to >= rm.from & sr.to > rm.to then
+      append(result, Range(sr.from, rm.from-1))
+      append(result, rm)
+      sr = Range(rm.to+1, sr.to)
       i += 1
+    elif rm.from <= sr.from & rm.to < sr.to then
+      append(result, Range(sr.from, rm.to))
+      sr = Range(rm.to+1, sr.to)
+      i += 1
+    else
+      _panic(repr(sr))
     end
   end
-  if len(result) == 0 then
-    return List(sr)
-  end
-  #append(result, Range(sr.from, r.dist-sr.dist))
   append(result, sr)
   return result
 end
 
 function lookup(r : Range, rm : RangeMap)
-  if is_subrange(r, rm.to) then
-    var new_from = rm.from.from+(r.from-rm.to.from)
-    return Some(Range(new_from, r.dist))
+  if is_subrange(r, rm.from) then
+    var adjust = r.from-rm.from.from
+    var new_from = rm.to.from+adjust
+    return Some(Range(new_from, new_from+(r.to-r.from)))
   end
   return None
 end
@@ -99,79 +83,48 @@ end
 function lookup(r : Range, rml : List)
   for i = 0, i < len(rml), i += 1 do
     dispatch (lookup(r, get(rml, i)))
-      (lv : Some) return lv.value
+      (v : Some) return v.value
     and
-      (lv : None)
+      (v : None)
     end
   end
   return r
 end
 
-function lookup(rl : List, rm : RangeMap)
-  var result = List()
-  foreach(rl, function(r)
-    append(result, lookup(r, rm))
-  end)
-  return result
-end
-
 function lookup(rl : List, rml : List)
   var result = List()
   foreach(rl, function(r)
-    append(result, lookup(r, rml))
+    var temp = List()
+    foreach(split(r, rml), function(sr)
+      append(temp, lookup(sr, rml))
+    end)
+    result += temp
   end)
   return result
 end
 
-var almenac = split(read_file("sample.txt"), "\n\n")
+var almenac = split(read_file("input.txt"), "\n\n")
 
-var seeds = map(split(get(split(get(almenac, 0), ": "), 1), " "), function(n) return Range(int(n), 1) end)
+var seeds = map(split(get(split(get(almenac, 0), ": "), 1), " "), function(n)
+  return Range(int(n), int(n))
+end)
 
 var maps = map(slice(almenac, 1), parse_map)
 
 var seed_ranges = List()
-
 for i = 0, i < len(seeds)-1, i += 2 do
-  append(seed_ranges, Range(get(seeds, i).from, get(seeds, i+1).from))
+  var r = Range(get(seeds, i).from, get(seeds, i).from+get(seeds, i+1).from-1)
+  append(seed_ranges, r)
 end
 
+var s1 = seeds
+foreach(maps, function(m)
+  s1 = lookup(s1, m)
+end)
+println(reduce(map(s1, function(x) return x.from end), min))
 
-var results = List()
-for i = 0, i < len(seed_ranges), i += 1 do
-  var seed = List(get(seed_ranges, i))
-  var temp = List()
-  for j = 0, j < len(maps), j += 1do
-    var m = get(maps, j)
-    #print(i)
-    #print(" ")
-    #print(j)
-    #print(": ")
-    #println(seed)
-    seed = reduce(map(seed, function(s) return split(s, m) end), List(), plus)
-    #println(seed)
-    #println(m)
-    temp += seed
-    seed = lookup(seed, m)
-    println(seed)
-  end
-  results = temp
-end
-
-var part2 = reduce(map(results, function(r) return r.from end), min)
-println(part2)
-
-function solve(seeds)
-  var locations = List()
-  foreach(seeds, function(seed)
-    var n = seed
-    for i = 0, i < len(maps), i += 1 do
-      n = lookup(n, get(maps, i))
-    end
-    append(locations, n)
-  end)
-  return locations
-end
-
-#var part1 = reduce(map(solve(seeds), function(r) return r.from end), min)
-
-#println(part1)
+var s2 = seed_ranges
+foreach(maps, function(m)
+  s2 = lookup(s2, m)
+end)
+println(reduce(map(s2, function(x) return x.from end), min))
