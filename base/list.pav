@@ -75,6 +75,10 @@ function reduce(x : List, initial, f)
   return result
 end
 
+function reduce(x : List, f : Function)
+  return reduce(x, get(x, 0), f)
+end
+
 function sum(x : List)
   return reduce(x, 0, plus)
 end
