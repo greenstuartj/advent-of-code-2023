@@ -275,3 +275,34 @@ end
 function ge(x, y)
   return x > y | x == y
 end
+
+function merge_with(x : List, y : List, sort_f : Function)
+  var result = List()
+  var x_i = 0
+  var y_i = 0
+  while x_i < len(x) | y_i < len(y) do
+    if x_i == len(x) & y_i != len(y) then
+      append(result, get(y, y_i))
+      y_i += 1
+    elif y_i == len(y) & x_i != len(x) then
+      append(result, get(x, x_i))
+      x_i += 1
+    else
+      if sort_f(get(x, x_i), get(y, y_i)) then
+        append(result, get(x, x_i))
+	x_i += 1
+      else
+        append(result, get(y, y_i))
+	y_i += 1
+      end
+    end
+  end
+  return result
+end
+
+function sort_with(x : List, sort_f : Function)
+  if len(x) <= 1 then return x end
+  var first = slice(x, 0, len(x)/2)
+  var second = slice(x, len(x)/2)
+  return merge_with(sort_with(first, sort_f), sort_with(second, sort_f), sort_f)
+end
