@@ -28,15 +28,70 @@ function RangeMap(line : String)
 end
 
 function parse_map(m : String)
-  return map(slice(split(m, "\n"), 1), RangeMap)
+  return sort_with(map(slice(split(m, "\n"), 1), RangeMap), function(r1, r2) return r1.to.from < r2.to.from end)
+end
+
+function split(r : Range, rml : List)
+  if r.dist == 1 then return List(r) end
+  var result = List()
+  var sr = Range(r.from, r.dist)
+  var rm = Range(get(rml, 0).to.from, get(rml, 0).to.dist)
+  var i = 0
+  while i < len(rml) do
+    rm = Range(get(rml, i).to.from, get(rml, i).to.dist)
+    
+    # larger than current range map
+    if sr.from >= rm.from+rm.dist then
+      #println(1)
+      i += 1
+      
+    # fully enclosed by current range map 
+    elif is_subrange(sr, rm) then
+      #println(2)
+      append(result, sr)
+      return result
+      
+    # smaller than all remaining range maps
+    elif sr.from+sr.dist <= rm.from then
+      #println(3)
+      append(result, sr)
+      return result
+      
+    # extends beyond range map start
+    elif sr.from < rm.from & sr.from+sr.dist >= rm.from then
+      #println(4)
+      append(result, Range(sr.from, rm.from-sr.from))
+      # range map fully enclosed
+      if is_subrange(rm, sr) then
+        #println("4a")
+        append(result, rm)
+	sr = Range(rm.from+rm.dist, sr.dist-(rm.from+rm.dist))
+	i += 1
+      # does not reach end of range map
+      else
+        #println("4b")
+        sr = Range(rm.from, sr.dist - (rm.from-sr.from))
+      end
+
+    # 
+    elif rm.from+rm.dist >= sr.from then
+      append(result, Range(sr.from, (rm.from+rm.dist)-sr.from))
+      sr = Range(rm.from+rm.dist, sr.dist-((rm.from+rm.dist)-sr.from))
+      i += 1
+    end
+  end
+  if len(result) == 0 then
+    return List(sr)
+  end
+  #append(result, Range(sr.from, r.dist-sr.dist))
+  append(result, sr)
+  return result
 end
 
 function lookup(r : Range, rm : RangeMap)
   if is_subrange(r, rm.to) then
     var new_from = rm.from.from+(r.from-rm.to.from)
     return Some(Range(new_from, r.dist))
-  elif r.dist == 1 then
-    return None
   end
   return None
 end
@@ -52,11 +107,58 @@ function lookup(r : Range, rml : List)
   return r
 end
 
-var almenac = split(read_file("input.txt"), "\n\n")
+function lookup(rl : List, rm : RangeMap)
+  var result = List()
+  foreach(rl, function(r)
+    append(result, lookup(r, rm))
+  end)
+  return result
+end
+
+function lookup(rl : List, rml : List)
+  var result = List()
+  foreach(rl, function(r)
+    append(result, lookup(r, rml))
+  end)
+  return result
+end
+
+var almenac = split(read_file("sample.txt"), "\n\n")
 
 var seeds = map(split(get(split(get(almenac, 0), ": "), 1), " "), function(n) return Range(int(n), 1) end)
 
 var maps = map(slice(almenac, 1), parse_map)
+
+var seed_ranges = List()
+
+for i = 0, i < len(seeds)-1, i += 2 do
+  append(seed_ranges, Range(get(seeds, i).from, get(seeds, i+1).from))
+end
+
+
+var results = List()
+for i = 0, i < len(seed_ranges), i += 1 do
+  var seed = List(get(seed_ranges, i))
+  var temp = List()
+  for j = 0, j < len(maps), j += 1do
+    var m = get(maps, j)
+    #print(i)
+    #print(" ")
+    #print(j)
+    #print(": ")
+    #println(seed)
+    seed = reduce(map(seed, function(s) return split(s, m) end), List(), plus)
+    #println(seed)
+    #println(m)
+    temp += seed
+    seed = lookup(seed, m)
+    println(seed)
+  end
+  results = temp
+end
+
+var part2 = reduce(map(results, function(r) return r.from end), min)
+println(part2)
 
 function solve(seeds)
   var locations = List()
@@ -70,6 +172,6 @@ function solve(seeds)
   return locations
 end
 
-var part1 = reduce(map(solve(seeds), function(r) return r.from end), min)
+#var part1 = reduce(map(solve(seeds), function(r) return r.from end), min)
 
-println(part1)
+#println(part1)
