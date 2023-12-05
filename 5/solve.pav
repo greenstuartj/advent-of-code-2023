@@ -1,0 +1,71 @@
+include "../base/base.pav"
+
+record RangeMap
+  from : Int
+  to   : Int
+  dist : Int
+end
+
+function repr(x : RangeMap)
+  return "RM(" + repr(x.from) + ", " + repr(x.to) + ", " + repr(x.dist) + ")"
+end
+
+function RangeMap(line : String)
+  var r = map(split(line, " "), int)
+  return RangeMap(get(r, 0), get(r, 1), get(r, 2))
+end
+
+function parse_map(m : String)
+  return map(slice(split(m, "\n"), 1), RangeMap)
+end
+
+function lookup(v : Int, m : RangeMap)
+  if v >= m.to & v < m.to+m.dist then
+    return Some(m.from+(v-m.to))
+  end
+  return None
+end
+
+function lookup(v : Int, ml : List)
+  for i = 0, i < len(ml), i += 1 do
+    dispatch (lookup(v, get(ml, i)))
+      (lv : Some) return lv.value
+    and
+      (lv : None)
+    end
+  end
+  return v
+end
+
+var almenac = split(read_file("input.txt"), "\n\n")
+
+var seeds = map(split(get(split(get(almenac, 0), ": "), 1), " "), int)
+
+var maps = map(slice(almenac, 1), parse_map)
+
+function solve(seeds)
+  var locations = List()
+  foreach(seeds, function(seed)
+    var n = seed
+    for i = 0, i < len(maps), i += 1 do
+      n = lookup(n, get(maps, i))
+    end
+    append(locations, n)
+  end)
+  return locations
+end
+
+var part1 = reduce(solve(seeds), min)
+
+println(part1)
+
+var part2 = 1000000000
+
+for i = 0, i < len(seeds)-1, i += 2 do
+  var seed = get(seeds, i)
+  var dist = get(seeds, i+1)
+  var r = range(seed, seed+dist)
+  part2 = min(part2, reduce(solve(r), min))
+end
+
+println(part2)
