@@ -1,18 +1,18 @@
 include "../base/base.pav"
 
 function search(time, distance)
-    var low = 0
-    var high = time
-    var candidate = low+(high-low)/2
-    while low+1 < high do
-      if (time-candidate)*candidate > distance then
-        high = candidate
-      else
-        low = candidate
-      end
-      candidate = low+(high-low)/2
+  var low = 0
+  var high = time
+  var candidate = low+(high-low)/2
+  while low+1 < high do
+    if (time-candidate)*candidate > distance then
+      high = candidate
+    else
+      low = candidate
     end
-    return 1+(time-high)-high
+    candidate = low+(high-low)/2
+  end
+  return 1+(time-high)-high
 end
 
 var time = List(56, 71, 79, 99)
