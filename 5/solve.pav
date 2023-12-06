@@ -5,10 +5,6 @@ record Range
   to   : Int
 end
 
-function repr(x : Range)
-  return "Range(" + repr(x.from) + ", " + repr(x.to) + ")"
-end
-
 function is_subrange(sr : Range, r : Range)
   return sr.from >= r.from & sr.to <= r.to
 end
@@ -16,10 +12,6 @@ end
 record RangeMap
   from : Range
   to   : Range
-end
-
-function repr(x : RangeMap)
-  return "RangeMap(" + repr(x.from) + ", " + repr(x.to) + ")"
 end
 
 function RangeMap(line : String)
