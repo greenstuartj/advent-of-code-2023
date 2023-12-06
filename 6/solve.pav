@@ -3,14 +3,13 @@ include "../base/base.pav"
 function search(time, distance)
   var low = 0
   var high = time
-  var candidate = low+(high-low)/2
   while low+1 < high do
+    var candidate = low+(high-low)/2
     if (time-candidate)*candidate > distance then
       high = candidate
     else
       low = candidate
     end
-    candidate = low+(high-low)/2
   end
   return 1+(time-high)-high
 end
