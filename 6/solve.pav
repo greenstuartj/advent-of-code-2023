@@ -1,0 +1,28 @@
+include "../base/base.pav"
+
+# sample
+#var time = List(71530)
+#var distance =  List(940200)
+
+# input
+#var time = List(56717999)
+#var distance =  List(334113513502430)
+
+function winning(t, d)
+  var winning_hold = List()
+  var button_hold = range(0, t+1)
+  foreach(button_hold, function(bh)
+    var r = (t-bh)*bh
+    if r > d then
+      append(winning_hold, bh)
+    end
+  end)
+  return winning_hold
+end
+
+var answer = 1
+for i = 0, i < len(time), i += 1 do
+  answer = part1 *  len(winning(get(time, i), get(distance, i)))
+end
+
+println(answer)
