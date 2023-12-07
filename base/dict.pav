@@ -250,6 +250,14 @@ function merge(d1 : Dict, d2 : Dict, confict_f : Function)
   return result
 end
 
+function keys(x : Dict)
+  var result = List()
+  foreach(x, function(k, v)
+    append(result, k)
+  end)
+  return result
+end
+
 function values(x : Dict)
   var result = List()
   foreach(x, function(k, v)

@@ -102,8 +102,7 @@ function count_cards(cards : List)
   return counts
 end
 
-function hand_type(cards : List)
-  var counts = count_cards(cards)
+function hand_type(counts : Dict)
   var c = len(counts)
   if c == 1 then
     return FIVE_OF_A_KIND
@@ -144,7 +143,7 @@ function Play(line : String)
   var sl = split(line, " ")
   var cards = map(get(sl, 0), function(c) return get(card_lookup, c) end)
   var bid = int(get(sl, 1))
-  var hand = Hand(cards, hand_type(cards))
+  var hand = Hand(cards, hand_type(count_cards(cards)))
   return Play(hand, bid)
 end
 
@@ -155,9 +154,59 @@ end
 function lt(p1 : Play, p2 : Play)
   if p1.hand.type < p2.hand.type then
     return true
+  elif p1.hand.type > p2.hand.type then
+    return false
   else
     return p1.hand.cards < p2.hand.cards
   end
 end
 
-var plays = map(split(read_file("sample.txt"), "\n"), Play)
+var plays = map(split(read_file("input.txt"), "\n"), Play)
+
+var sorted_plays = sort_with(plays, lt)
+
+var part1 = 0
+for i = 0, i < len(sorted_plays), i += 1 do
+  part1 += get(sorted_plays, i).bid * (i+1)
+end
+
+function int(x : J) return 0 end
+
+function recount_cards(counts : Dict)
+  if contains(counts, J) then
+    if get(counts, J) == 5 then
+      return
+    end
+    var j_count = get(counts, J)
+    delete(counts, J)
+    var ks = keys(counts)
+    var vs = values(counts)
+    var k = get(ks, 0)
+    var v = get(vs, 0)
+    for i = 1, i < len(ks), i += 1 do
+      if get(ks, i) != J then
+        if get(vs, i) > v then
+	  v = get(vs, i)
+	  k = get(ks, i)
+	end
+      end
+    end
+    set(counts, k, get(counts, k) + j_count)
+  end
+end
+
+var plays2 = map(plays, function(p)
+  var counts = count_cards(p.hand.cards)
+  recount_cards(counts)
+  return Play(Hand(p.hand.cards, hand_type(counts)), p.bid)
+end)
+
+var sorted_plays2 = sort_with(plays2, lt)
+
+var part2 = 0
+for i = 0, i < len(sorted_plays2), i += 1 do
+  part2 += get(sorted_plays2, i).bid * (i+1)
+end
+
+println(part1)
+println(part2)
