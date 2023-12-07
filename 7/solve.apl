@@ -6,7 +6,7 @@ get_type ← {{⍵[⍋⍵]}+⌿∘.=⍨⊃⍵}
 len ← (⍴data)[1]
 hands ← {order ⍳ ⍵}¨ ((len⍴5)/⍳len) ⊂ , data ↑⍨ len,5
 bids ← ⍎ , 0 5 ↓ data
-groups ← type ⍳ get_type ¨ hands
+groups ← type ⍳ get_type¨ hands
 part1 ← +/{⍵×⍳≢⍵} bids[⊃{hands ⍳ ⍵}¨ ,/{,⍵[⍋⍵]}¨ groups[⍋groups] ⊂ hands[⍋groups]]
 part1
 
