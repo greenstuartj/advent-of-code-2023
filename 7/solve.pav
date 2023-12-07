@@ -1,0 +1,163 @@
+include "../base/base.pav"
+
+object A
+object K
+object Q
+object J
+object T
+object NINE
+object EIGHT
+object SEVEN
+object SIX
+object FIVE
+object FOUR
+object THREE
+object TWO
+object ONE
+
+function repr(x : A)     return 'A' end
+function repr(x : K)     return 'K' end
+function repr(x : Q)     return 'Q' end
+function repr(x : J)     return 'J' end
+function repr(x : T)     return 'T' end
+function repr(x : NINE)  return '9' end
+function repr(x : EIGHT) return '8' end
+function repr(x : SEVEN) return '7' end
+function repr(x : SIX)   return '6' end
+function repr(x : FIVE)  return '5' end
+function repr(x : FOUR)  return '4' end
+function repr(x : THREE) return '3' end
+function repr(x : TWO)   return '2' end
+function repr(x : ONE)   return '1' end
+ 
+function int(x : A)     return 14 end
+function int(x : K)     return 13 end
+function int(x : Q)     return 12 end
+function int(x : J)     return 11 end
+function int(x : T)     return 10 end
+function int(x : NINE)  return 9  end
+function int(x : EIGHT) return 8  end
+function int(x : SEVEN) return 7  end
+function int(x : SIX)   return 6  end
+function int(x : FIVE)  return 5  end
+function int(x : FOUR)  return 4  end
+function int(x : THREE) return 3  end
+function int(x : TWO)   return 2  end
+function int(x : ONE)   return 1  end
+
+object FIVE_OF_A_KIND
+object FOUR_OF_A_KIND
+object FULL_HOUSE
+object THREE_OF_A_KIND
+object TWO_PAIR
+object ONE_PAIR
+object HIGH_CARD
+
+function repr(x : FIVE_OF_A_KIND)  return "FIVE_OF_A_KIND"  end
+function repr(x : FOUR_OF_A_KIND)  return "FOUR_OF_A_KIND"  end
+function repr(x : FULL_HOUSE)      return "FULL_HOUSE"      end
+function repr(x : THREE_OF_A_KIND) return "THREE_OF_A_KIND" end
+function repr(x : TWO_PAIR)        return "TWO_PAIR"        end
+function repr(x : ONE_PAIR)        return "ONE_PAIR"        end
+function repr(x : HIGH_CARD)       return "HIGH_CARD"       end
+
+function int(x : FIVE_OF_A_KIND)  return 7 end
+function int(x : FOUR_OF_A_KIND)  return 6 end
+function int(x : FULL_HOUSE)      return 5 end
+function int(x : THREE_OF_A_KIND) return 4 end
+function int(x : TWO_PAIR)        return 3 end
+function int(x : ONE_PAIR)        return 2 end
+function int(x : HIGH_CARD)       return 1 end
+
+function hash(x) return int(x) * 31 end
+function eq(x, y) return int(x) == int(y) end
+function lt(x, y) return int(x) < int(y) end
+function gt(x, y) return int(x) > int(y) end
+
+var card_lookup = Dict()
+set(card_lookup, 'A', A)
+set(card_lookup, 'K', K)
+set(card_lookup, 'Q', Q)
+set(card_lookup, 'J', J)
+set(card_lookup, 'T', T)
+set(card_lookup, '9', NINE)
+set(card_lookup, '8', EIGHT)
+set(card_lookup, '7', SEVEN)
+set(card_lookup, '6', SIX)
+set(card_lookup, '5', FIVE)
+set(card_lookup, '4', FOUR)
+set(card_lookup, '3', THREE)
+set(card_lookup, '2', TWO)
+set(card_lookup, '1', ONE)
+
+function count_cards(cards : List)
+  var counts = Dict()
+  foreach(cards, function(card)
+    if contains(counts, card) then
+      set(counts, card, get(counts, card)+1)
+    else
+      set(counts, card, 1)
+    end
+  end)
+  return counts
+end
+
+function hand_type(cards : List)
+  var counts = count_cards(cards)
+  var c = len(counts)
+  if c == 1 then
+    return FIVE_OF_A_KIND
+  elif c == 2 then
+    if reduce(values(counts), 0, max) == 4 then
+      return FOUR_OF_A_KIND
+    else
+      return FULL_HOUSE
+    end
+  elif c == 3 then
+    if reduce(values(counts), 0, max) == 3 then
+      return THREE_OF_A_KIND
+    else
+      return TWO_PAIR
+    end
+  elif c == 4 then
+    return ONE_PAIR
+  elif c == 5 then
+    return HIGH_CARD
+  end
+end
+
+record Hand
+  cards : List
+  type
+end
+
+function repr(x : Hand)
+  return "Hand(" + repr(x.cards) + ", " + repr(x.type) + ")"
+end
+
+record Play
+  hand : Hand
+  bid  : Int
+end
+
+function Play(line : String)
+  var sl = split(line, " ")
+  var cards = map(get(sl, 0), function(c) return get(card_lookup, c) end)
+  var bid = int(get(sl, 1))
+  var hand = Hand(cards, hand_type(cards))
+  return Play(hand, bid)
+end
+
+function repr(x : Play)
+  return "Play(" + repr(x.hand) + ", " + repr(x.bid) + ")"
+end
+
+function lt(p1 : Play, p2 : Play)
+  if p1.hand.type < p2.hand.type then
+    return true
+  else
+    return p1.hand.cards < p2.hand.cards
+  end
+end
+
+var plays = map(split(read_file("sample.txt"), "\n"), Play)
