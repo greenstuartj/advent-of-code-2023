@@ -277,9 +277,6 @@ function ge(x, y)
 end
 
 function merge_with(x : List, y : List, sort_f : Function)
-  println("merging")
-  println(x)
-  println(y)
   var result = List()
   var x_i = 0
   var y_i = 0
@@ -300,8 +297,6 @@ function merge_with(x : List, y : List, sort_f : Function)
       end
     end
   end
-  println(result)
-  println("end merge")
   return result
 end
 
