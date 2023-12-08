@@ -1,0 +1,70 @@
+include "../base/base.pav"
+
+record Node
+  left
+  right
+end
+
+function repr(x : Node)
+  return "Node(" + repr(x.left) + ", " + repr(x.right) + ")"
+end
+
+var lines = split(read_file("input.txt"), "\n")
+
+var m = Dict()
+
+function process_line(line)
+  var sl = split(line, " = ")
+  var lr = split(get(sl, 1), ", ")
+  var n = Node(slice(get(lr, 0), 1), slice(get(lr, 1), 0, 3))
+  set(m, get(sl, 0), n)
+end
+
+for i = 2, i < len(lines), i += 1 do
+  process_line(get(lines, i))
+end
+
+var directions = get(lines, 0)
+
+function ends_with(x, with)
+  return get(x, len(x)-1) == with
+end
+
+function path(start)
+  var current = start
+  var count = 0
+  var ip = 0
+  while !ends_with(current, 'Z') do
+    var lr = get(m, current)
+    if get(directions, ip) == 'L' then
+      current = lr.left
+    else
+      current = lr.right
+    end
+    count += 1
+    ip = (ip+1)%len(directions)
+  end
+  return count
+end
+
+function gcd(a, b)
+  if b == 0 then
+    return a
+  else
+    return gcd(b, a % b)
+  end
+end
+
+function lcm(a, b)
+  return abs(a*b) / gcd(a, b)
+end
+
+var start = filter(keys(m), function(x) return ends_with(x, 'A') end)
+
+var result = List()
+foreach(start, function(s)
+  append(result, path(s))
+end)
+
+println(path("AAA"))
+println(reduce(result, 1, lcm))
