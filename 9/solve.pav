@@ -10,7 +10,7 @@ end
 
 function next(line)
   var diffs = increments(line)
-  if all(diffs, function(d) return d == get(diffs, 0) end) then
+  if all(diffs, is_zero) then
     return get(line, len(line)-1) + get(diffs, 0)
   else
     return get(line, len(line)-1) + next(diffs)

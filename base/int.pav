@@ -85,3 +85,7 @@ end
 function hash(x : Int)
   return x
 end
+
+function is_zero(x : Int)
+  return x == 0
+end
