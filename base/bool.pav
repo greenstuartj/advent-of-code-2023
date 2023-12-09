@@ -25,3 +25,19 @@ function int(x : Bool)
     return 0
   end
 end
+
+function all(x, f)
+  var result = true
+  foreach(x, function(e)
+    result = result & f(e)
+  end)
+  return result
+end
+
+function any(x, f)
+  var result = false
+  foreach(x, function(e)
+    result = result | f(e)
+  end)
+  return result
+end
