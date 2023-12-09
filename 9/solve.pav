@@ -17,27 +17,18 @@ function next(line)
   end
 end
 
-function previous(line)
-  var diffs = increments(line)
-  if len(Set(increments(line))) == 1 then
-    return get(line, 0) - get(diffs, 0)
-  else
-    return get(line, 0) - previous(diffs)
-  end
-end
-
 function solve(file, f)
   var lines = map(split(read_file(file), "\n"), function(line)
     return map(split(line, " "), int)
   end)
   var result = 0
   foreach(lines, function(line)
-    result += f(line)
+    result += next(f(line))
   end)
   return result
 end
 
 for i = 2, i < len(_args()), i += 1 do
-  println(solve(get(_args(), i), next))
-  println(solve(get(_args(), i), previous))
+  println(solve(get(_args(), i), function(x) return x end))
+  println(solve(get(_args(), i), reverse))
 end
