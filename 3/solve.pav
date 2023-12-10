@@ -2,23 +2,6 @@ include "../base/base.pav"
 
 var schematic = read_file(get(_args(), 2))
 
-record Coord
-  row : Int
-  col : Int
-end
-
-function repr(c : Coord)
-  return "Coord(" + repr(c.row) + ", " + repr(c.col) + ")"
-end
-
-function hash(c : Coord)
-  return c.row * c.col * 31
-end
-
-function eq(c1 : Coord, c2 : Coord)
-  return c1.row == c2.row & c1.col == c2.col
-end
-
 record Pair
   first
   second
