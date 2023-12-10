@@ -129,22 +129,17 @@ end
 var blank_row = List(repeat(blank, len(get(rows, 0))))
 var maze = Maze(blank_row + rows + blank_row)
 
-var path = Stack()
-var path_moves = Stack()
+var path = Stack(List(start, start))
+var path_moves = Stack(List(moves(Start)))
 var directions = Stack()
-var loop_set = Set()
-push(path, start)
-push(path_moves, moves(Start))
+var loop_set = Set(List(start))
 
 function make_move()
   var current_position = pop(path)
   var move_options = pop(path_moves)
-  if is_empty(move_options) then
-    return false
-  end
   var move_option = pop(move_options)
   var next_position = move(move_option, current_position)
-  if (!is_empty(path) & next_position != top(path)) | is_empty(path) then
+  if next_position != top(path) then
     push(path, current_position)
     push(path_moves, move_options)
     push(path, next_position)
