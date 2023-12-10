@@ -111,66 +111,6 @@ function moves(x : TopRight)
   return Stack(List(Down, Left))
 end
 
-record Stack
-  stack
-end
-
-record StackNode
-  value
-  next
-end
-
-object StackEnd
-
-function is_empty(x : Stack)     return is_empty(x.stack) end
-function is_empty(x : StackNode) return false end
-function is_empty(x : StackEnd)  return true  end
-
-function Stack()
-  return Stack(StackEnd)
-end
-
-function Stack(values : List)
-  var stack = Stack()
-  foreach(reverse(values), function(v)
-    push(stack, v)
-  end)
-  return stack
-end
-
-function push(x : Stack, v)
-  x.stack = StackNode(v, x.stack)
-end
-
-function pop(x : Stack)
-  dispatch (x.stack)
-    (y : StackEnd) _panic("(pop) empty stack")
-  and
-    (y : StackNode)
-      var v = y.value
-      x.stack = y.next
-      return v
-  end
-end
-
-function top(x : Stack)
-  dispatch (x.stack)
-    (y : StackEnd) _panic("(top) empty stack")
-  and
-    (y : StackNode) return y.value
-  end
-end
-
-function len(x : Stack)
-  var s = x.stack
-  var c = 0
-  while !is_empty(s) do
-    c += 1
-    s = s.next
-  end
-  return c
-end
-
 var cells = Dict()
 set(cells, '.', Space)
 set(cells, 'S', Start)
