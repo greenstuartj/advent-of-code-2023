@@ -68,23 +68,8 @@ function move(d : Right, x : Coord)
   return Coord(x.row, x.col+1)
 end
 
-function is_possible_move(d : Up,    c : Vert)     return true  end
-function is_possible_move(d : Up,    c : TopLeft)  return true  end
-function is_possible_move(d : Up,    c : TopRight) return true  end
-function is_possible_move(d : Down,  c : Vert)     return true  end
-function is_possible_move(d : Down,  c : LowLeft)  return true  end
-function is_possible_move(d : Down,  c : LowRight) return true  end
-function is_possible_move(d : Left,  c : Horiz)    return true  end
-function is_possible_move(d : Left,  c : LowLeft)  return true  end
-function is_possible_move(d : Left,  c : TopLeft)  return true  end
-function is_possible_move(d : Right, c : Horiz)    return true  end
-function is_possible_move(d : Right, c : LowRight) return true  end
-function is_possible_move(d : Right, c : TopRight) return true  end
-function is_possible_move(d,         c : Start)    return true  end
-function is_possible_move(d,         c)            return false end
-
 function moves(x : Start)
-  return Stack(List(Up, Down, Left, Right))
+  return Stack(List(Down, Right)) # input and examples only use these
 end
 
 function moves(x : Vert)
@@ -121,7 +106,7 @@ set(cells, 'J', LowRight)
 set(cells, 'F', TopLeft)
 set(cells, '7', TopRight)
 
-var lines = split(read_file("input.txt"), "\n")
+var lines = split(read_file(get(_args(), 2)), "\n")
 
 var blank = Cell(Blank, Coord(0, 0))
 
@@ -159,9 +144,7 @@ function make_move()
   end
   var move_option = pop(move_options)
   var next_position = move(move_option, current_position)
-  if is_possible_move(move_option, get(maze, next_position).type) &
-     ((!is_empty(path) & next_position != top(path)) | is_empty(path))
-  then
+  if (!is_empty(path) & next_position != top(path)) | is_empty(path) then
     push(path, current_position)
     push(path_moves, move_options)
     push(path, next_position)
