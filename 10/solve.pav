@@ -293,18 +293,6 @@ end
 loop = reverse(loop)
 direction = reverse(direction)
 
-var maze2 = Maze(map(maze.rows, function(line)
-  return map(line, function(c)
-    if contains(loop_set, c.coord) then
-      return c
-    elif c.type != Blank then
-      return Cell(Space, c.coord)
-    else
-      return Cell(Blank, c.coord)
-    end
-  end)
-end))
-
 function neighbours(m : Maze, c : Cell)
   var result = List()
   for i = -1, i < 2, i += 1 do
@@ -389,7 +377,7 @@ var s1 = Set()
 var s2 = Set()
 
 for i = 0, i < len(loop), i += 1 do
-  flood(maze2, get(loop, i), get(direction, i), s1, s2)
+  flood(maze, get(loop, i), get(direction, i), s1, s2)
 end
 
 if contains(s1, Coord(0,0)) then
