@@ -159,9 +159,7 @@ function make_move()
   end
 end
 
-while top(path) == start do
-  make_move()
-end
+make_move()
 while top(path) != start do
   make_move()
 end
