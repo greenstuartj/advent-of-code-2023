@@ -4,13 +4,13 @@ var lines = split(read_file(get(_args(), 2)), "\n")
 
 var games = List()
 
-record Pair
+record CubeCount
   colour : String
   number : Int
 end
 
-function repr(p : Pair)
-  return "Pair(" + repr(p.colour) + ": " + repr(p.number) + ")"
+function repr(p : CubeCount)
+  return "CubeCount(" + repr(p.colour) + ": " + repr(p.number) + ")"
 end
 
 function parse_game(line, games)
@@ -23,7 +23,7 @@ function parse_game(line, games)
     var draw = List()
     for j = 0, j < len(draws), j += 1 do
       var pair = split(get(draws, j), " ")
-      append(draw, Pair(get(pair, 1), int(get(pair, 0))))
+      append(draw, CubeCount(get(pair, 1), int(get(pair, 0))))
     end
     append(sections, draw)
   end

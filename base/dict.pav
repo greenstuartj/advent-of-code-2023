@@ -70,10 +70,10 @@ function Dict()
 end
 
 function Dict(x : List)
-  var d = Dict(len(x)*2)
-  for i = 0, i < len(x)-1, i += 2 do
-    set(d, get(x, i), get(x, i+1))
-  end
+  var d = Dict()
+  foreach(x, function(p : Pair)
+    set(d, p.first, p.second)
+  end)
   return d
 end
 

@@ -1,0 +1,17 @@
+
+record Pair
+  first
+  second
+end
+
+function hash(p : Pair)
+  return hash(p.first) * hash(p.second) * 31
+end
+
+function eq(p1 : Pair, p2 : Pair)
+  return p1.first == p2.first & p1.second == p2.second
+end
+
+function repr(p : Pair)
+  return "Pair(" + repr(p.first) + ", " + repr(p.second) + ")"
+end
