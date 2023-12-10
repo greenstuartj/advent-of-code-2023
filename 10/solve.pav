@@ -52,12 +52,12 @@ object Down
 object Left
 object Right
 
-function move(d : Up, x : Coord)    return Coord(x.row-1, x.col) end
-function move(d : Down, x : Coord)  return Coord(x.row+1, x.col) end
-function move(d : Left, x : Coord)  return Coord(x.row, x.col-1) end
+function move(d : Up,    x : Coord) return Coord(x.row-1, x.col) end
+function move(d : Down,  x : Coord) return Coord(x.row+1, x.col) end
+function move(d : Left,  x : Coord) return Coord(x.row, x.col-1) end
 function move(d : Right, x : Coord) return Coord(x.row, x.col+1) end
 
-# input and examples only use these
+# input and examples only use these for Start
 function moves(x : Start)    return Stack(List(Down, Right)) end
 function moves(x : Vert)     return Stack(List(Up, Down))    end
 function moves(x : Horiz)    return Stack(List(Left, Right)) end
