@@ -246,6 +246,7 @@ var maze = Maze(blank_row + rows + blank_row)
 var path = Stack()
 var path_moves = Stack()
 var directions = Stack()
+var loop_set = Set()
 push(path, start)
 push(path_moves, moves(Start))
 
@@ -263,6 +264,7 @@ function make_move()
     push(path, next_position)
     push(path_moves, moves(get(maze, next_position).type))
     push(directions, move_option)
+    insert(loop_set, current_position)
     return true
   else
     push(path, current_position)
@@ -279,19 +281,6 @@ while top(path) != start do
 end
 
 println(len(path)/2)
-
-var loop_set = Set()
-var loop = List()
-var direction = List()
-while !is_empty(directions) do
-  var x = pop(path)
-  var d = pop(directions)
-  insert(loop_set, x)
-  append(loop, x)
-  append(direction, d)
-end
-loop = reverse(loop)
-direction = reverse(direction)
 
 function neighbours(m : Maze, c : Cell)
   var result = List()
@@ -376,8 +365,10 @@ end
 var s1 = Set()
 var s2 = Set()
 
-for i = 0, i < len(loop), i += 1 do
-  flood(maze, get(loop, i), get(direction, i), s1, s2)
+while !is_empty(directions) do
+  var c = pop(path)
+  var d = pop(directions)
+  flood(maze, c, d, s1, s2)
 end
 
 if contains(s1, Coord(0,0)) then
