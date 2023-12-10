@@ -39,16 +39,16 @@ object Down
 object Left
 object Right
 
-function move(d : Up,    x : Coord) return Coord(x.row-1, x.col) end
-function move(d : Down,  x : Coord) return Coord(x.row+1, x.col) end
-function move(d : Left,  x : Coord) return Coord(x.row, x.col-1) end
-function move(d : Right, x : Coord) return Coord(x.row, x.col+1) end
+function move(d : Up,    x : Coord) return Coord(x.row-1, x.col)   end
+function move(d : Down,  x : Coord) return Coord(x.row+1, x.col)   end
+function move(d : Left,  x : Coord) return Coord(x.row,   x.col-1) end
+function move(d : Right, x : Coord) return Coord(x.row,   x.col+1) end
 
 function moves(x : Start)    return Stack(List(Down, Right)) end
-function moves(x : Vert)     return Stack(List(Up, Down))    end
+function moves(x : Vert)     return Stack(List(Up,   Down))  end
 function moves(x : Horiz)    return Stack(List(Left, Right)) end
-function moves(x : LowLeft)  return Stack(List(Up, Right))   end
-function moves(x : LowRight) return Stack(List(Up, Left))    end
+function moves(x : LowLeft)  return Stack(List(Up,   Right)) end
+function moves(x : LowRight) return Stack(List(Up,   Left))  end
 function moves(x : TopLeft)  return Stack(List(Down, Right)) end
 function moves(x : TopRight) return Stack(List(Down, Left))  end
 
@@ -85,17 +85,17 @@ end
 var blank_row = List(repeat(blank, len(get(rows, 0))))
 var maze = Maze(blank_row + rows + blank_row)
 
-var path = Stack(List(start, start))
+var path       = Stack(List(start, start))
 var path_moves = Stack(List(moves(Start)))
 var directions = Stack()
-var loop_set = Set(List(start))
+var loop_set   = Set(List(start))
 
 function make_move()
   var current_position = pop(path)
   var move_option = pop(top(path_moves))
   var next_position = move(move_option, current_position)
   if next_position == top(path) then
-    move_option = pop(top(path_moves))
+    move_option   = pop(top(path_moves))
     next_position = move(move_option, current_position)
   end
   push(path, current_position)
