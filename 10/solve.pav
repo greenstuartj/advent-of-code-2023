@@ -10,17 +10,6 @@ object TopLeft
 object TopRight
 object Blank
 
-function repr(x : Space)    return "." end
-function repr(x : Start)    return "S" end
-function repr(x : Vert)     return "|" end
-function repr(x : Horiz)    return "-" end
-function repr(x : LowLeft)  return "L" end
-function repr(x : LowRight) return "J" end
-function repr(x : TopLeft)  return "F" end
-function repr(x : TopRight) return "7" end
-function repr(x : TopRight) return "7" end
-function repr(x : Blank)    return " " end
-
 function eq(x : Space,    y : Space)    return true  end
 function eq(x : Start,    y : Start)    return true  end
 function eq(x : Vert,     y : Vert)     return true  end
@@ -37,10 +26,6 @@ record Coord
   col : Int
 end
 
-function repr(x : Coord)
-  return "Coord(" + repr(x.row) + ", " + repr(x.col) + ")"
-end
-
 function eq(x : Coord, y : Coord)
   return x.row == y.row & x.col == y.col
 end
@@ -54,19 +39,8 @@ record Cell
   coord : Coord
 end
 
-function repr(x : Cell)
-  return repr(x.type)
-end
-
 record Maze
   rows
-end
-
-function repr(x : Maze)
-  var row_strings = map(x.rows, function(row)
-    return reduce(row, "", function(a, x) return a + repr(x) end) + "\n"
-  end)
-  return reduce(row_strings, "", plus)
 end
 
 function get(m : Maze, c : Coord)
@@ -77,11 +51,6 @@ object Up
 object Down
 object Left
 object Right
-
-function repr(x : Up)    return "Up"    end
-function repr(x : Down)  return "Down"  end
-function repr(x : Left)  return "Left"  end
-function repr(x : Right) return "Right" end
 
 function move(d : Up, x : Coord)
   return Coord(x.row-1, x.col)
@@ -152,14 +121,6 @@ record StackNode
 end
 
 object StackEnd
-
-function repr(x : Stack)
-  return "Stack(" + repr(x.stack) + ")"
-end
-function repr(x : StackNode)
-  return repr(x.value) + ", " + repr(x.next)
-end
-function repr(x : StackEnd) return "" end
 
 function is_empty(x : Stack)     return is_empty(x.stack) end
 function is_empty(x : StackNode) return false end
