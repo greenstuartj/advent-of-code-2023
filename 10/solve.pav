@@ -151,55 +151,31 @@ end
 
 function flood(m : Maze, l : Coord, d, s1 : Set, s2 : Set)
   dispatch (get(m, l).type, d)
-    (t : Vert, d : Down)
-      flood(m, get(m, move(Left, l)), s1)
-      flood(m, get(m, move(Right, l)), s2)
-  and
-    (t : Vert, d : Up)
-      flood(m, get(m, move(Right, l)), s1)
-      flood(m, get(m, move(Left, l)), s2)
-  and
-    (t : Horiz, d : Left)
-      flood(m, get(m, move(Up, l)), s1)
-      flood(m, get(m, move(Down, l)), s2)
-  and
-    (t : Horiz, d : Right)
-      flood(m, get(m, move(Down, l)), s1)
-      flood(m, get(m, move(Up, l)), s2)
-  and
-    (t : LowLeft, d : Down)
-      flood(m, get(m, move(Left, l)), s1)
-      flood(m, get(m, move(Down, l)), s1)
-  and
-    (t : LowLeft, d : Right)
-      flood(m, get(m, move(Left, l)), s2)
-      flood(m, get(m, move(Down, l)), s2)
-  and
-    (t : TopLeft, d : Up)
-      flood(m, get(m, move(Left, l)), s2)
-      flood(m, get(m, move(Up, l)), s2)
-  and
-    (t : TopLeft, d : Right)
-      flood(m, get(m, move(Left, l)), s1)
-      flood(m, get(m, move(Down, l)), s1)
-  and
-    (t : TopRight, d : Up)
-      flood(m, get(m, move(Right, l)), s1)
-      flood(m, get(m, move(Up, l)), s1)
-  and
-    (t : TopRight, d : Left)
-      flood(m, get(m, move(Right, l)), s2)
-      flood(m, get(m, move(Up, l)), s2)
-  and
-    (t : LowRight, d : Down)
-      flood(m, get(m, move(Right, l)), s2)
-      flood(m, get(m, move(Down, l)), s2)
-  and
-    (t : LowRight, d : Left)
-      flood(m, get(m, move(Right, l)), s1)
-      flood(m, get(m, move(Down, l)), s1)
-  and
-    (t, d)
+      (t : Vert,    d : Down)  flood(m, get(m, move(Left,  l)), s1)
+                               flood(m, get(m, move(Right, l)), s2)
+  and (t : Vert,    d : Up)    flood(m, get(m, move(Right, l)), s1)
+                               flood(m, get(m, move(Left,  l)), s2)
+  and (t : Horiz,   d : Left)  flood(m, get(m, move(Up,    l)), s1)
+                               flood(m, get(m, move(Down,  l)), s2)
+  and (t : Horiz,   d : Right) flood(m, get(m, move(Down,  l)), s1)
+                               flood(m, get(m, move(Up,    l)), s2)
+  and (t : LowLeft, d : Down)  flood(m, get(m, move(Left,  l)), s1)
+                               flood(m, get(m, move(Down,  l)), s1)
+  and (t : LowLeft, d : Right) flood(m, get(m, move(Left,  l)), s2)
+                               flood(m, get(m, move(Down,  l)), s2)
+  and (t : TopLeft, d : Up)    flood(m, get(m, move(Left,  l)), s2)
+                               flood(m, get(m, move(Up,    l)), s2)
+  and (t : TopLeft, d : Right) flood(m, get(m, move(Left,  l)), s1)
+                               flood(m, get(m, move(Down,  l)), s1)
+  and (t : TopRight, d : Up)   flood(m, get(m, move(Right, l)), s1)
+                               flood(m, get(m, move(Up,    l)), s1)
+  and (t : TopRight, d : Left) flood(m, get(m, move(Right, l)), s2)
+                               flood(m, get(m, move(Up,    l)), s2)
+  and (t : LowRight, d : Down) flood(m, get(m, move(Right, l)), s2)
+                               flood(m, get(m, move(Down,  l)), s2)
+  and (t : LowRight, d : Left) flood(m, get(m, move(Right, l)), s1)
+                               flood(m, get(m, move(Down,  l)), s1)
+  and (t,            d)
   end
 end
 
