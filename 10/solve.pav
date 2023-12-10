@@ -136,22 +136,17 @@ var loop_set = Set(List(start))
 
 function make_move()
   var current_position = pop(path)
-  var move_options = pop(path_moves)
-  var move_option = pop(move_options)
+  var move_option = pop(top(path_moves))
   var next_position = move(move_option, current_position)
-  if next_position != top(path) then
-    push(path, current_position)
-    push(path_moves, move_options)
-    push(path, next_position)
-    push(path_moves, moves(get(maze, next_position).type))
-    push(directions, move_option)
-    insert(loop_set, current_position)
-    return true
-  else
-    push(path, current_position)
-    push(path_moves, move_options)
-    return false
+  if next_position == top(path) then
+    move_option = pop(top(path_moves))
+    next_position = move(move_option, current_position)
   end
+  push(path, current_position)
+  push(path, next_position)
+  push(path_moves, moves(get(maze, next_position).type))
+  push(directions, move_option)
+  insert(loop_set, current_position)
 end
 
 make_move()
