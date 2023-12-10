@@ -52,15 +52,14 @@ function moves(x : LowRight) return Stack(List(Up,   Left))  end
 function moves(x : TopLeft)  return Stack(List(Down, Right)) end
 function moves(x : TopRight) return Stack(List(Down, Left))  end
 
-var cells = Dict()
-set(cells, '.', Space)
-set(cells, 'S', Start)
-set(cells, '|', Vert)
-set(cells, '-', Horiz)
-set(cells, 'L', LowLeft)
-set(cells, 'J', LowRight)
-set(cells, 'F', TopLeft)
-set(cells, '7', TopRight)
+var cells = Dict(List(Pair('.', Space),
+                      Pair('S', Start),
+                      Pair('|', Vert),
+                      Pair('-', Horiz),
+                      Pair('L', LowLeft),
+                      Pair('J', LowRight),
+                      Pair('F', TopLeft),
+                      Pair('7', TopRight)))
 
 var lines = split(read_file(get(_args(), 2)), "\n")
 
