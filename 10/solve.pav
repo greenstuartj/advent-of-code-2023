@@ -258,7 +258,9 @@ function make_move()
   end
   var move_option = pop(move_options)
   var next_position = move(move_option, current_position)
-  if is_possible_move(move_option, get(maze, next_position).type) & ((!is_empty(path) & next_position != top(path)) | is_empty(path)) then
+  if is_possible_move(move_option, get(maze, next_position).type) &
+     ((!is_empty(path) & next_position != top(path)) | is_empty(path))
+  then
     push(path, current_position)
     push(path_moves, move_options)
     push(path, next_position)
@@ -293,19 +295,16 @@ function neighbours(m : Maze, c : Cell)
 end
 
 function flood(m : Maze, c : Cell, s : Set)
-  if contains(loop_set, c.coord) then
+  if contains(loop_set, c.coord) | contains(s, c.coord) then
     return
-  elif contains(s, c.coord) then
-    return
-  elif c.type == Blank then
-    insert(s, c.coord)
-    return
-  else
-    insert(s, c.coord)
-    foreach(neighbours(m, c), function(nb)
-      flood(m, nb, s)
-    end)
   end
+  insert(s, c.coord)
+  if c.type == Blank then
+    return
+  end
+  foreach(neighbours(m, c), function(nb)
+    flood(m, nb, s)
+  end)
 end
 
 function flood(m : Maze, l : Coord, d, s1 : Set, s2 : Set)
