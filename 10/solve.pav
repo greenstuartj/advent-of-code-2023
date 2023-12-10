@@ -1,0 +1,399 @@
+include "../base/base.pav"
+
+object Space
+object Start
+object Vert
+object Horiz
+object LowLeft
+object LowRight
+object TopLeft
+object TopRight
+object Blank
+
+function repr(x : Space)    return "." end
+function repr(x : Start)    return "S" end
+function repr(x : Vert)     return "|" end
+function repr(x : Horiz)    return "-" end
+function repr(x : LowLeft)  return "L" end
+function repr(x : LowRight) return "J" end
+function repr(x : TopLeft)  return "F" end
+function repr(x : TopRight) return "7" end
+function repr(x : TopRight) return "7" end
+function repr(x : Blank)    return " " end
+
+function eq(x : Space,    y : Space)    return true  end
+function eq(x : Start,    y : Start)    return true  end
+function eq(x : Vert,     y : Vert)     return true  end
+function eq(x : Horiz,    y : Horiz)    return true  end
+function eq(x : LowLeft,  y : LowLeft)  return true  end
+function eq(x : LowRight, y : LowRight) return true  end
+function eq(x : TopLeft,  y : TopLeft)  return true  end
+function eq(x : TopRight, y : TopRight) return true  end
+function eq(x : Blank,    y : Blank)    return true  end
+function eq(x,            y)            return false end
+
+record Coord
+  row : Int
+  col : Int
+end
+
+function repr(x : Coord)
+  return "Coord(" + repr(x.row) + ", " + repr(x.col) + ")"
+end
+
+function eq(x : Coord, y : Coord)
+  return x.row == y.row & x.col == y.col
+end
+
+function hash(x : Coord)
+  return x.row * x.col * 31
+end
+
+record Cell
+  type
+  coord : Coord
+end
+
+function repr(x : Cell)
+  return repr(x.type)
+end
+
+record Maze
+  rows
+end
+
+function repr(x : Maze)
+  var row_strings = map(x.rows, function(row)
+    return reduce(row, "", function(a, x) return a + repr(x) end) + "\n"
+  end)
+  return reduce(row_strings, "", plus)
+end
+
+function get(m : Maze, c : Coord)
+  return get(get(m.rows, c.row), c.col)
+end
+
+object Up
+object Down
+object Left
+object Right
+
+function repr(x : Up)    return "Up"    end
+function repr(x : Down)  return "Down"  end
+function repr(x : Left)  return "Left"  end
+function repr(x : Right) return "Right" end
+
+function move(d : Up, x : Coord)
+  return Coord(x.row-1, x.col)
+end
+
+function move(d : Down, x : Coord)
+  return Coord(x.row+1, x.col)
+end
+
+function move(d : Left, x : Coord)
+  return Coord(x.row, x.col-1)
+end
+
+function move(d : Right, x : Coord)
+  return Coord(x.row, x.col+1)
+end
+
+function is_possible_move(d : Up,    c : Vert)     return true  end
+function is_possible_move(d : Up,    c : TopLeft)  return true  end
+function is_possible_move(d : Up,    c : TopRight) return true  end
+function is_possible_move(d : Down,  c : Vert)     return true  end
+function is_possible_move(d : Down,  c : LowLeft)  return true  end
+function is_possible_move(d : Down,  c : LowRight) return true  end
+function is_possible_move(d : Left,  c : Horiz)    return true  end
+function is_possible_move(d : Left,  c : LowLeft)  return true  end
+function is_possible_move(d : Left,  c : TopLeft)  return true  end
+function is_possible_move(d : Right, c : Horiz)    return true  end
+function is_possible_move(d : Right, c : LowRight) return true  end
+function is_possible_move(d : Right, c : TopRight) return true  end
+function is_possible_move(d,         c : Start)    return true  end
+function is_possible_move(d,         c)            return false end
+
+function moves(x : Start)
+  return Stack(List(Up, Down, Left, Right))
+end
+
+function moves(x : Vert)
+  return Stack(List(Up, Down))
+end
+
+function moves(x : Horiz)
+  return Stack(List(Left, Right))
+end
+
+function moves(x : LowLeft)
+  return Stack(List(Up, Right))
+end
+
+function moves(x : LowRight)
+  return Stack(List(Up, Left))
+end
+
+function moves(x : TopLeft)
+  return Stack(List(Down, Right))
+end
+
+function moves(x : TopRight)
+  return Stack(List(Down, Left))
+end
+
+record Stack
+  stack
+end
+
+record StackNode
+  value
+  next
+end
+
+object StackEnd
+
+function repr(x : Stack)
+  return "Stack(" + repr(x.stack) + ")"
+end
+function repr(x : StackNode)
+  return repr(x.value) + ", " + repr(x.next)
+end
+function repr(x : StackEnd) return "" end
+
+function is_empty(x : Stack)     return is_empty(x.stack) end
+function is_empty(x : StackNode) return false end
+function is_empty(x : StackEnd)  return true  end
+
+function Stack()
+  return Stack(StackEnd)
+end
+
+function Stack(values : List)
+  var stack = Stack()
+  foreach(reverse(values), function(v)
+    push(stack, v)
+  end)
+  return stack
+end
+
+function push(x : Stack, v)
+  x.stack = StackNode(v, x.stack)
+end
+
+function pop(x : Stack)
+  dispatch (x.stack)
+    (y : StackEnd) _panic("(pop) empty stack")
+  and
+    (y : StackNode)
+      var v = y.value
+      x.stack = y.next
+      return v
+  end
+end
+
+function top(x : Stack)
+  dispatch (x.stack)
+    (y : StackEnd) _panic("(top) empty stack")
+  and
+    (y : StackNode) return y.value
+  end
+end
+
+function len(x : Stack)
+  var s = x.stack
+  var c = 0
+  while !is_empty(s) do
+    c += 1
+    s = s.next
+  end
+  return c
+end
+
+var cells = Dict()
+set(cells, '.', Space)
+set(cells, 'S', Start)
+set(cells, '|', Vert)
+set(cells, '-', Horiz)
+set(cells, 'L', LowLeft)
+set(cells, 'J', LowRight)
+set(cells, 'F', TopLeft)
+set(cells, '7', TopRight)
+
+var lines = split(read_file("input.txt"), "\n")
+
+var blank = Cell(Blank, Coord(0, 0))
+
+var start = Coord(0, 0)
+var rows = List()
+
+for row = 0, row < len(lines), row += 1 do
+  var temp = List()
+  var c_row = get(lines, row)
+  for col = 0, col < len(c_row), col += 1 do
+    var cell = get(cells, get(c_row, col))
+    if cell == Start then
+      start = Coord(row+1, col+1)
+    end
+    append(temp, Cell(cell, Coord(row+1, col+1)))
+  end
+  append(rows, List(blank) + temp + List(blank))
+end
+
+var blank_row = List(repeat(blank, len(get(rows, 0))))
+var maze = Maze(blank_row + rows + blank_row)
+
+var path = Stack()
+var path_moves = Stack()
+var directions = Stack()
+push(path, start)
+push(path_moves, moves(Start))
+
+function make_move()
+  var current_position = pop(path)
+  var move_options = pop(path_moves)
+  if is_empty(move_options) then
+    return false
+  end
+  var move_option = pop(move_options)
+  var next_position = move(move_option, current_position)
+  if is_possible_move(move_option, get(maze, next_position).type) & ((!is_empty(path) & next_position != top(path)) | is_empty(path)) then
+    push(path, current_position)
+    push(path_moves, move_options)
+    push(path, next_position)
+    push(path_moves, moves(get(maze, next_position).type))
+    push(directions, move_option)
+    return true
+  else
+    push(path, current_position)
+    push(path_moves, move_options)
+    return false
+  end
+end
+
+while top(path) == start do
+  make_move()
+end
+while top(path) != start do
+  make_move()
+end
+
+println(len(path)/2)
+
+var loop_set = Set()
+var loop = List()
+var direction = List()
+while !is_empty(directions) do
+  var x = pop(path)
+  var d = pop(directions)
+  insert(loop_set, x)
+  append(loop, x)
+  append(direction, d)
+end
+loop = reverse(loop)
+direction = reverse(direction)
+
+var maze2 = Maze(map(maze.rows, function(line)
+  return map(line, function(c)
+    if contains(loop_set, c.coord) then
+      return c
+    elif c.type != Blank then
+      return Cell(Space, c.coord)
+    else
+      return Cell(Blank, c.coord)
+    end
+  end)
+end))
+
+function neighbours(m : Maze, c : Cell)
+  var result = List()
+  for i = -1, i < 2, i += 1 do
+    for j = -1, j < 2, j += 1 do
+      append(result, get(m, Coord(c.coord.row+i, c.coord.col+j)))
+    end
+  end
+  return result
+end
+
+function flood(m : Maze, c : Cell, s : Set)
+  if contains(loop_set, c.coord) then
+    return
+  elif contains(s, c.coord) then
+    return
+  elif c.type == Blank then
+    insert(s, c.coord)
+    return
+  else
+    insert(s, c.coord)
+    foreach(neighbours(m, c), function(nb)
+      flood(m, nb, s)
+    end)
+  end
+end
+
+function flood(m : Maze, l : Coord, d, s1 : Set, s2 : Set)
+  dispatch (get(m, l).type, d)
+    (t : Vert, d : Down)
+      flood(m, get(m, move(Left, l)), s1)
+      flood(m, get(m, move(Right, l)), s2)
+  and
+    (t : Vert, d : Up)
+      flood(m, get(m, move(Right, l)), s1)
+      flood(m, get(m, move(Left, l)), s2)
+  and
+    (t : Horiz, d : Left)
+      flood(m, get(m, move(Up, l)), s1)
+      flood(m, get(m, move(Down, l)), s2)
+  and
+    (t : Horiz, d : Right)
+      flood(m, get(m, move(Down, l)), s1)
+      flood(m, get(m, move(Up, l)), s2)
+  and
+    (t : LowLeft, d : Down)
+      flood(m, get(m, move(Left, l)), s1)
+      flood(m, get(m, move(Down, l)), s1)
+  and
+    (t : LowLeft, d : Right)
+      flood(m, get(m, move(Left, l)), s2)
+      flood(m, get(m, move(Down, l)), s2)
+  and
+    (t : TopLeft, d : Up)
+      flood(m, get(m, move(Left, l)), s2)
+      flood(m, get(m, move(Up, l)), s2)
+  and
+    (t : TopLeft, d : Right)
+      flood(m, get(m, move(Left, l)), s1)
+      flood(m, get(m, move(Down, l)), s1)
+  and
+    (t : TopRight, d : Up)
+      flood(m, get(m, move(Right, l)), s1)
+      flood(m, get(m, move(Up, l)), s1)
+  and
+    (t : TopRight, d : Left)
+      flood(m, get(m, move(Right, l)), s2)
+      flood(m, get(m, move(Up, l)), s2)
+  and
+    (t : LowRight, d : Down)
+      flood(m, get(m, move(Right, l)), s2)
+      flood(m, get(m, move(Down, l)), s2)
+  and
+    (t : LowRight, d : Left)
+      flood(m, get(m, move(Right, l)), s1)
+      flood(m, get(m, move(Down, l)), s1)
+  and
+    (t, d)
+  end
+end
+
+var s1 = Set()
+var s2 = Set()
+
+for i = 0, i < len(loop), i += 1 do
+  flood(maze2, get(loop, i), get(direction, i), s1, s2)
+end
+
+if contains(s1, Coord(0,0)) then
+  println(len(s2))
+else
+  println(len(s1))
+end
