@@ -52,65 +52,6 @@ function moves(:LowRight) return Stack(List(Up,   Left))  end
 function moves(:TopLeft)  return Stack(List(Down, Right)) end
 function moves(:TopRight) return Stack(List(Down, Left))  end
 
-var cells = Dict(List(Pair('.', Space),
-                      Pair('S', Start),
-                      Pair('|', Vert),
-                      Pair('-', Horiz),
-                      Pair('L', LowLeft),
-                      Pair('J', LowRight),
-                      Pair('F', TopLeft),
-                      Pair('7', TopRight)))
-
-var lines = split(read_file(get(_args(), 2)), "\n")
-
-var blank = Cell(Blank, Coord(0, 0))
-
-var start = Coord(0, 0)
-var rows = List()
-
-for row = 0, row < len(lines), row += 1 do
-  var temp = List()
-  var c_row = get(lines, row)
-  for col = 0, col < len(c_row), col += 1 do
-    var cell = get(cells, get(c_row, col))
-    if cell == Start then
-      start = Coord(row+1, col+1)
-    end
-    append(temp, Cell(cell, Coord(row+1, col+1)))
-  end
-  append(rows, List(blank) + temp + List(blank))
-end
-
-var blank_row = List(repeat(blank, len(get(rows, 0))))
-var maze = Maze(blank_row + rows + blank_row)
-
-var path       = Stack(List(start, start))
-var path_moves = Stack(List(moves(Start)))
-var directions = Stack()
-var loop_set   = Set(List(start))
-
-function make_move()
-  var current_position = pop(path)
-  var move_option = pop(top(path_moves))
-  var next_position = move(move_option, current_position)
-  if next_position == top(path) then
-    move_option   = pop(top(path_moves))
-    next_position = move(move_option, current_position)
-  end
-  push(path, current_position)
-  push(path, next_position)
-  push(path_moves, moves(get(maze, next_position).type))
-  push(directions, move_option)
-  insert(loop_set, current_position)
-end
-
-make_move()
-while top(path) != start do
-  make_move()
-end
-
-println(len(path)/2)
-
 function neighbours(m : Maze, c : Cell)
   var result = List()
   for i = -1, i < 2, i += 1 do
@@ -121,8 +62,8 @@ function neighbours(m : Maze, c : Cell)
   return result
 end
 
-function flood(m : Maze, c : Cell, s : Set)
-  if contains(loop_set, c.coord) | contains(s, c.coord) then
+function flood(m : Maze, c : Cell, s : Set, ls : Set)
+  if contains(ls, c.coord) | contains(s, c.coord) then
     return
   end
   insert(s, c.coord)
@@ -130,13 +71,13 @@ function flood(m : Maze, c : Cell, s : Set)
     return
   end
   foreach(neighbours(m, c), function(nb)
-    flood(m, nb, s)
+    flood(m, nb, s, ls)
   end)
 end
 
-function flood(m : Maze, l : Coord, d, inside : Set)
+function flood(m : Maze, l : Coord, d, inside : Set, ls : Set)
   function look(d)
-    return flood(m, get(m, move(d, l)), inside)
+    return flood(m, get(m, move(d, l)), inside, ls)
   end
   dispatch (get(m, l).type, d)
       (:Vert,     :Down)  look(Left)
@@ -151,12 +92,75 @@ function flood(m : Maze, l : Coord, d, inside : Set)
   end
 end
 
-var inside = Set()
+var cells = Dict(List(Pair('.', Space),
+                      Pair('S', Start),
+                      Pair('|', Vert),
+                      Pair('-', Horiz),
+                      Pair('L', LowLeft),
+                      Pair('J', LowRight),
+                      Pair('F', TopLeft),
+                      Pair('7', TopRight)))
 
-while !is_empty(directions) do
-  var c = pop(path)
-  var d = pop(directions)
-  flood(maze, c, d, inside)
+function solve(file)
+  var lines = split(read_file(file), "\n")
+  var blank = Cell(Blank, Coord(0, 0))
+  var start = Coord(0, 0)
+  var rows = List()
+
+  for row = 0, row < len(lines), row += 1 do
+    var temp = List()
+    var c_row = get(lines, row)
+    for col = 0, col < len(c_row), col += 1 do
+      var cell = get(cells, get(c_row, col))
+      if cell == Start then
+        start = Coord(row+1, col+1)
+      end
+      append(temp, Cell(cell, Coord(row+1, col+1)))
+    end
+    append(rows, List(blank) + temp + List(blank))
+  end
+
+  var blank_row = List(repeat(blank, len(get(rows, 0))))
+  var maze = Maze(blank_row + rows + blank_row)
+  var path       = Stack(List(start, start))
+  var path_moves = Stack(List(moves(Start)))
+  var directions = Stack()
+  var loop_set   = Set(List(start))
+
+  function make_move()
+    var current_position = pop(path)
+    var move_option = pop(top(path_moves))
+    var next_position = move(move_option, current_position)
+    if next_position == top(path) then
+      move_option   = pop(top(path_moves))
+      next_position = move(move_option, current_position)
+    end
+    push(path, current_position)
+    push(path, next_position)
+    push(path_moves, moves(get(maze, next_position).type))
+    push(directions, move_option)
+    insert(loop_set, current_position)
+  end
+
+  make_move()
+  while top(path) != start do
+    make_move()
+  end
+
+  println(len(path)/2)
+
+  var inside = Set()
+
+  while !is_empty(directions) do
+    var c = pop(path)
+    var d = pop(directions)
+    flood(maze, c, d, inside, loop_set)
+  end
+
+  println(len(inside))
+
 end
 
-println(len(inside))
+for i = 2, i < len(_args()), i += 1 do
+  solve(get(_args(), i))
+end
