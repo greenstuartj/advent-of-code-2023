@@ -44,7 +44,7 @@ function move(:Down,  x : Coord) return Coord(x.row+1, x.col)   end
 function move(:Left,  x : Coord) return Coord(x.row,   x.col-1) end
 function move(:Right, x : Coord) return Coord(x.row,   x.col+1) end
 
-function moves(:Start)    return Stack(List(Down)) end
+function moves(:Start)    return Stack(List(Down))        end
 function moves(:Vert)     return Stack(List(Up,   Down))  end
 function moves(:Horiz)    return Stack(List(Left, Right)) end
 function moves(:LowLeft)  return Stack(List(Up,   Right)) end
