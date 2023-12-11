@@ -129,3 +129,11 @@ end
 function gt(x : String, y : String)
   return c_gt(x, y)
 end
+
+function foreach(x : String, f : Function)
+  var result = List()
+  for i = 0, i < len(x), i += 1 do
+    append(result, f(get(x, i)))
+  end
+  return result
+end

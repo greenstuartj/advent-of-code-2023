@@ -1,0 +1,71 @@
+include "../base/base.pav"
+
+var lines = split(read_file(get(_args(), 2)), "\n")
+
+var galaxies = List()
+
+for row = 0, row < len(lines), row += 1 do
+  var r = get(lines, row)
+  for col = 0, col < len(r), col += 1 do
+    if get(r, col) == '#' then
+      append(galaxies, Coord(row, col))
+    end
+  end
+end
+
+var row_expand = List()
+for row = 0, row < len(lines), row += 1 do
+  if all(get(lines, row), function(c) return c == '.' end) then
+    append(row_expand, row)
+  end
+end
+
+var col_expand = List()
+for col = 0, col < len(get(lines, 0)), col += 1 do
+  if all(map(lines, function(row) return get(row, col) end), function(c)
+    return c == '.' end)
+  then
+    append(col_expand, col)
+  end
+end
+
+function expand(galaxies, n)
+  var new_galaxies = map(galaxies, function(c)
+    return Coord(c.row, c.col)
+  end)
+  foreach(new_galaxies, function(g)
+    var r = g.row
+    foreach(row_expand, function(e)
+      if r > e then
+        g.row += n-1
+      end
+    end)
+    var c = g.col
+    foreach(col_expand, function(e)
+      if c > e then
+        g.col += n-1
+      end
+    end)
+  end)
+  return new_galaxies
+end
+
+function distance(c1, c2)
+  return abs(c1.row - c2.row) + abs(c1.col - c2.col)
+end
+
+function calculate_distances(galaxies)
+  var distances = List()
+  for i = 0, i < len(galaxies), i += 1 do
+    for j = i, j < len(galaxies), j += 1 do
+      if i != j then
+        var d = distance(get(galaxies, i), get(galaxies, j))
+        append(distances, d)
+      end
+    end
+  end
+  return sum(distances)
+end
+
+println(calculate_distances(expand(galaxies, 2)))
+println(calculate_distances(expand(galaxies, 1000000)))
