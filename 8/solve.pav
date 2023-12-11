@@ -11,7 +11,7 @@ end
 
 var lines = split(read_file("input.txt"), "\n")
 
-var m = Dict()
+var m = Dict(1000000)
 
 function process_line(line)
   var sl = split(line, " = ")
@@ -59,12 +59,14 @@ function lcm(a, b)
   return abs(a*b) / gcd(a, b)
 end
 
-var start = filter(keys(m), function(x) return ends_with(x, 'A') end)
+var start = filter(keys(m), function(x) return ends_with(x, 'A') & x != "AAA" end)
 
-var result = List()
+var part1 = path("AAA")
+println(part1)
+
+var result = List(part1)
 foreach(start, function(s)
   append(result, path(s))
 end)
 
-println(path("AAA"))
 println(reduce(result, 1, lcm))
