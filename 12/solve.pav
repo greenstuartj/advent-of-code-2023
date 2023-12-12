@@ -1,5 +1,24 @@
 include "../base/base.pav"
 
+record LL
+  value
+  next
+end
+
+object LLEnd
+
+function LL(x : List)
+  var y = reverse(x)
+  var ll = LLEnd
+  for i = 0, i < len(y), i += 1 do
+    ll = LL(get(y, i), ll)
+  end
+  return ll
+end
+
+function repr(:LLEnd) return "" end
+function repr(x : LL) return repr(x.value) + " " + repr(x.next) end
+
 object Operational
 object Damaged
 object Unknown
@@ -39,8 +58,9 @@ end
 
 var conditions = map(split(read_file("sample.txt"), "\n"), process_line)
 
+
 function possibilities(c : Condition)
-  var row = Stack(c.row)
-  var ns  = Stack(c.number)
-  
+  var row = LL(c.row)
+  var ns  = LL(c.numbers)
+  return row
 end
