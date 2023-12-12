@@ -22,6 +22,14 @@ function repr(x : LL) return repr(x.value) + " " + repr(x.next) end
 function hash(:LLEnd)  return 1 end
 function hash(ll : LL) return hash(ll.value) * hash(ll.next) end
 
+function eq(:LLEnd, :LLEnd) return true end
+function eq(x : LL, y : LL)
+  if x.value != y.value then
+    return false
+  end
+  return eq(x.next, y.next)
+end
+
 object Operational
 object Damaged
 object Unknown
@@ -67,6 +75,8 @@ object Started
 object NotStarted
 object ExpectOperational
 
+var memo = Dict()
+
 function no_damaged(:LLEnd)
   return 1
 end
@@ -111,6 +121,9 @@ function step(r : LL, :NotStarted, :Int, :LLEnd)
 end
 
 function step(r : LL, :Started, cn : Int, ns : LLEnd)
+  if contains(memo, Pair(cn, Pair(r, ns))) then
+    return get(memo, Pair(cn, Pair(r, ns)))
+  end
   var result = 0
   if cn == 0 then
     result =  no_damaged(r)
@@ -127,10 +140,14 @@ function step(r : LL, :Started, cn : Int, ns : LLEnd)
 	end
     end
   end
+  set(memo, Pair(cn, Pair(r, ns)), result)
   return result
 end
 
 function step(r : LL, :NotStarted, cn : Int, ns : LL)
+  if contains(memo, Pair(r, ns)) then
+    return get(memo, Pair(r, ns))
+  end
   var result = 0
   dispatch (r.value)
     (:Operational)
@@ -142,6 +159,7 @@ function step(r : LL, :NotStarted, cn : Int, ns : LL)
     (:Unknown)
       result = step(LL(Damaged, r.next), Started, ns.value, ns.next) + step(LL(Operational, r.next), NotStarted, cn, ns)
   end
+  set(memo, Pair(r, ns), result)
   return result
 end
 
@@ -175,10 +193,11 @@ end
 function possibilities(c : Condition)
   var row = LL(c.row)
   var ns  = LL(c.numbers)
+  memo = Dict()
   return step(LL(c.row), NotStarted, 0, LL(c.numbers))
 end
 
-var conditions = map(split(read_file("input.txt"), "\n"), process_line)
+var conditions = map(split(read_file(get(_args(), 2)), "\n"), process_line)
 
 println(sum(map(conditions, possibilities)))
 
@@ -188,5 +207,5 @@ function expand(c : Condition)
   return Condition(new_row, new_numbers)
 end
 
-#println(possibilities(expand(process_line("?? 1"))))
-#println(sum(map(map(conditions, expand), possibilities)))
+memo = Dict()
+println(sum(map(map(conditions, expand), possibilities)))
