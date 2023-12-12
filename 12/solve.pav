@@ -1,0 +1,46 @@
+include "../base/base.pav"
+
+object Operational
+object Damaged
+object Unknown
+
+function repr(:Operational) return "." end
+function repr(:Damaged)     return "#" end
+function repr(:Unknown)     return "?" end
+
+function eq(:Operational, :Operational) return true  end
+function eq(:Damaged,     :Damaged)     return true  end
+function eq(:Unknown,     :Unknown)     return true  end
+function eq(x,            y)            return false end
+
+record Condition
+  row     : List
+  numbers : List
+end
+
+function repr(x : Condition)
+  return "Condition(" + repr(x.row) + ", " + repr(x.numbers) + ")"
+end
+
+function process_line(line)
+  var sl = split(line, " ")
+  var row = map(get(sl, 0), function(c)
+    if c == '.' then
+      return Operational
+    elif c == '?' then
+      return Unknown
+    else
+      return Damaged
+    end
+  end)
+  var numbers = map(split(get(sl, 1), ","), int)
+  return Condition(row, numbers)
+end
+
+var conditions = map(split(read_file("sample.txt"), "\n"), process_line)
+
+function possibilities(c : Condition)
+  var row = Stack(c.row)
+  var ns  = Stack(c.number)
+  
+end
