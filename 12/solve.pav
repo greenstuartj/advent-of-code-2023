@@ -19,6 +19,9 @@ end
 function repr(:LLEnd) return "" end
 function repr(x : LL) return repr(x.value) + " " + repr(x.next) end
 
+function hash(:LLEnd)  return 1 end
+function hash(ll : LL) return hash(ll.value) * hash(ll.next) end
+
 object Operational
 object Damaged
 object Unknown
@@ -31,6 +34,10 @@ function eq(:Operational, :Operational) return true  end
 function eq(:Damaged,     :Damaged)     return true  end
 function eq(:Unknown,     :Unknown)     return true  end
 function eq(x,            y)            return false end
+
+function hash(:Operational) return 7  end
+function hash(:Damaged)     return 11 end
+function hash(:Unknown)     return 13 end
 
 record Condition
   row     : List
@@ -56,11 +63,130 @@ function process_line(line)
   return Condition(row, numbers)
 end
 
-var conditions = map(split(read_file("sample.txt"), "\n"), process_line)
+object Started
+object NotStarted
+object ExpectOperational
 
+function no_damaged(:LLEnd)
+  return 1
+end
+
+function no_damaged(r : LL)
+  dispatch (r.value)
+    (:Damaged) return 0
+  and
+    (x) return no_damaged(r.next)
+  end
+end
+
+function step(:LLEnd, :NotStarted, :Int, :LLEnd)
+  return 1
+end
+function step(:LLEnd, :NotStarted, :Int, :LL)
+  return 0
+end
+function step(:LLEnd, :ExpectOperational, :Int, :LLEnd)
+  return 1
+end
+function step(:LLEnd, :ExpectOperational, :Int, :LL)
+  return 0
+end
+function step(r : LL, :ExpectOperational, :Int, :LLEnd)
+  return no_damaged(r)
+end
+
+function step(:LLEnd, :Started, :Int, :LL)
+  return 0
+end
+
+function step(:LLEnd, :Started, cn : Int, :LLEnd)
+  if cn == 0 then
+    return 1
+  end
+  return 0
+end
+
+function step(r : LL, :NotStarted, :Int, :LLEnd)
+  return no_damaged(r)
+end
+
+function step(r : LL, :Started, cn : Int, ns : LLEnd)
+  var result = 0
+  if cn == 0 then
+    result =  no_damaged(r)
+  else
+    dispatch (r.value)
+      (:Operational) result = 0
+    and
+      (x)
+        var n = cn-1
+        if n == 0 then
+          result = step(r.next, ExpectOperational, 0, LLEnd)
+        else
+          result = step(r.next, Started, n, LLEnd)
+	end
+    end
+  end
+  return result
+end
+
+function step(r : LL, :NotStarted, cn : Int, ns : LL)
+  var result = 0
+  dispatch (r.value)
+    (:Operational)
+      result = step(r.next, NotStarted, cn, ns)
+  and
+    (:Damaged)
+      result = step(r, Started, ns.value, ns.next)
+  and
+    (:Unknown)
+      result = step(LL(Damaged, r.next), Started, ns.value, ns.next) + step(LL(Operational, r.next), NotStarted, cn, ns)
+  end
+  return result
+end
+
+function step(r : LL, :ExpectOperational, cn : Int, ns : LL)
+  dispatch (r.value)
+    (:Operational)
+      return step(r.next, NotStarted, cn, ns)
+  and
+    (:Unknown)
+      return step(r.next, NotStarted, cn, ns)
+  and
+    (:Damaged)
+      return 0
+  end
+end
+
+function step(r : LL, :Started, cn : Int, ns : LL)
+  dispatch (r.value)
+    (:Operational)
+      return 0
+  and
+    (x)
+  end
+  var n = cn-1
+  if n == 0 then
+    return step(r.next, ExpectOperational, n, ns)
+  end
+  return step(r.next, Started, n, ns)
+end
 
 function possibilities(c : Condition)
   var row = LL(c.row)
   var ns  = LL(c.numbers)
-  return row
+  return step(LL(c.row), NotStarted, 0, LL(c.numbers))
 end
+
+var conditions = map(split(read_file("input.txt"), "\n"), process_line)
+
+println(sum(map(conditions, possibilities)))
+
+function expand(c : Condition)
+  var new_row = slice(reduce(repeat(c.row, 5), List(), function(a, e) return a + List(Unknown) + e end), 1)
+  var new_numbers = reduce(repeat(c.numbers, 5), List(), plus)
+  return Condition(new_row, new_numbers)
+end
+
+#println(possibilities(expand(process_line("?? 1"))))
+#println(sum(map(map(conditions, expand), possibilities)))
