@@ -1,0 +1,66 @@
+include "../base/base.pav"
+
+function transpose(g)
+  var result = List()
+  for i = 0, i < len(get(g, 0)), i += 1 do
+    append(result, reduce(map(g, function(row) return get(row, i) end), "", plus))
+  end
+  return result
+end
+
+var grids = map(split(read_file("sample.txt"), "\n\n"), function(g)
+  return split(g, "\n")
+end)
+
+function find_reflect(g)
+  var is = map(g, function(r) return index(g, r) end)
+  var candidate = 0
+  var candidate_i = 0
+  var current = 0
+  var i = 1
+  var expectation = 1
+  var reflect = 0
+  while i < len(is) do
+    current = get(is, i-1)
+    if expectation == -1 & candidate_i == 0 & get(is, i) == candidate then
+      return Some(reflect)
+    end
+    if get(is, i) == current then
+      reflect = current
+      expectation == -1
+    elif get(is, i) != candidate+expectation then
+      candidate = get(is, i)
+      expectation = 1
+    end
+    i += 1
+  end
+  if get(is, len(is)-1) == candidate then
+    return Some(reflect)
+  end
+  if get(g, 0) == get(g, 1) then
+    return Some(0)
+  end
+  if get(g, len(g)-2) == get(g, len(g)-1) then
+    return Some(len(g)-2)
+  end
+  return None
+end
+
+var fail = 0
+function find_reflection(g)
+  dispatch (find_reflect(g))
+    (r : Some)
+      return 100 * (r.value+1)
+  and
+    (:None)
+      dispatch (find_reflect(transpose(g)))
+        (r : Some)
+          return r.value+1
+      and
+        (:None)
+          foreach(g, println)
+          fail = g
+          _panic("wut")
+      end
+  end
+end

@@ -208,6 +208,24 @@ function zip(x, y, f)
   return result
 end
 
+function index(x, f : Function)
+  for i = 0, i < len(x), i += 1 do
+    if f(get(x, i)) then
+      return i
+    end
+  end
+  _panic("index of item not found")
+end
+
+function index(x, e)
+  for i = 0, i < len(x), i += 1 do
+    if get(x, i) == e then
+      return i
+    end
+  end
+  _panic("index of item not found")
+end
+
 function indices(x, f : Function)
   var result = List()
   for i = 0, i < len(x), i += 1 do
