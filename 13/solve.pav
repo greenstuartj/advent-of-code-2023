@@ -11,38 +11,6 @@ function eq(:Rock, :Rock) return true  end
 function eq(:Ash,  :Rock) return false end
 function eq(:Rock, :Ash)  return false end
 
-record Row
-  values : List
-end
-
-function get(row : Row, i : Int)
-  return get(row.values, i)
-end
-
-function len(row : Row)
-  return len(row.values)
-end
-
-function eq(r1 : Row, r2 : Row)
-  return r1.values == r2.values
-end
-
-record Grid
-  rows : List
-end
-
-function repr(grid : Grid)
-  return reduce(grid.rows, "", function(a, r) return a + "\n" + repr(r) end)
-end
-
-function get(grid : Grid, i : Int)
-  return get(grid.rows, i)
-end
-
-function len(grid : Grid)
-  return len(grid.rows)
-end
-
 record Perfect
   start
   finish
@@ -53,12 +21,12 @@ record Smudged
   finish
 end
 
-function transpose(g : Grid)
+function transpose(g)
   var result = List()
   for i = 0, i < len(get(g, 0)), i += 1 do
-    append(result, Row(map(g, function(row) return get(row, i) end)))
+    append(result, map(g, function(row) return get(row, i) end))
   end
-  return Grid(result)
+  return result
 end
 
 function xor(l1 : List, l2 : List)
@@ -69,19 +37,11 @@ function xor(l1 : List, l2 : List)
   return result
 end
 
-function xor(r1 : Row, r2 : Row)
-  return xor(r1.values, r2.values)
-end
-
 function diff(l1 : List, l2 : List)
   return sum(xor(l1, l2))
 end
 
-function diff(r1 : Row, r2 : Row)
-  return diff(r1.values, r2.values)
-end
-
-function find_same(grid : Grid)
+function find_same(grid)
   var result = List()
   for i = 0, i < len(grid)-1, i += 1 do
     if diff(get(grid, i), get(grid, i+1)) == 0 then
@@ -93,7 +53,7 @@ function find_same(grid : Grid)
   return result
 end
 
-function expand_same(grid : Grid, original, p : Perfect)
+function expand_same(grid, original, p : Perfect)
   if p.start == 0 | p.finish == len(grid)-1 then
     return Some(Perfect(original.start, original.finish))
   end
@@ -106,7 +66,7 @@ function expand_same(grid : Grid, original, p : Perfect)
   return None
 end
 
-function expand_same(grid : Grid, original, s : Smudged)
+function expand_same(grid, original, s : Smudged)
   if s.start == 0 | s.finish == len(grid)-1 then
     return Some(Smudged(original.start, original.finish))
   end
@@ -132,7 +92,7 @@ function answer(x : Transposed)
   return x.reflect.start+1
 end
 
-function get_reflections(grid : Grid)
+function get_reflections(grid)
   var result = List()
   foreach(find_same(grid), function(e)
     dispatch (expand_same(grid, e, e))
@@ -144,7 +104,7 @@ function get_reflections(grid : Grid)
   return result
 end
 
-function find_reflections(grid : Grid, sort_f : Function)
+function find_reflections(grid, sort_f : Function)
   var reflections = map(get_reflections(grid), Normal) + map(get_reflections(transpose(grid)), Transposed)
   return sort_with(reflections, function(a, b) return sort_f(a.reflect, b.reflect) end)
 end
@@ -164,11 +124,11 @@ function part2(:Smudged, :Perfect) return true  end
 function part2(x, y)               return false end
 
 var grids = map(split(read_file(get(_args(), 2)), "\n\n"), function(g)
-  return Grid(map(split(g, "\n"), function(row)
-    return Row(map(row, function(c)
+  return map(split(g, "\n"), function(row)
+    return map(row, function(c)
       if c == '.' then return Ash else return Rock end
-    end))
-  end))
+    end)
+  end)
 end)
 
 println(solve(grids, part1))
