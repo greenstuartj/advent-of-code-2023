@@ -8,45 +8,49 @@ function transpose(g)
   return result
 end
 
-var grids = map(split(read_file("sample.txt"), "\n\n"), function(g)
+var grids = map(split(read_file("input.txt"), "\n\n"), function(g)
   return split(g, "\n")
 end)
 
+function find_reflect_candidates(g)
+  var result = List()
+  for i = 0, i < len(g)-1, i += 1 do
+    if get(g, i) == get(g, i+1) then
+      append(result, Pair(i, i+1))
+    end
+  end
+  return result
+end
+
+function expand_reflect_candidate(g, rc)
+  var p = Pair(rc.first, rc.second)
+  while p.first != 0 & p.second != len(g)-1 do
+    if get(g, p.first) != get(g, p.second) then
+      return None
+    end
+    p = Pair(p.first-1, p.second+1)
+  end
+  if get(g, p.first) != get(g, p.second) then
+    return None
+  end
+  return Some(rc.first)
+end
+
 function find_reflect(g)
-  var is = map(g, function(r) return index(g, r) end)
-  var candidate = 0
-  var candidate_i = 0
-  var current = 0
-  var i = 1
-  var expectation = 1
-  var reflect = 0
-  while i < len(is) do
-    current = get(is, i-1)
-    if expectation == -1 & candidate_i == 0 & get(is, i) == candidate then
-      return Some(reflect)
+  var rc = find_reflect_candidates(g)
+  var result = 0
+  for i = 0, i < len(rc), i += 1 do
+    dispatch (expand_reflect_candidate(g, get(rc, i)))
+      (c : Some) return Some(c.value)
+    and
+      (:None)
     end
-    if get(is, i) == current then
-      reflect = current
-      expectation == -1
-    elif get(is, i) != candidate+expectation then
-      candidate = get(is, i)
-      expectation = 1
-    end
-    i += 1
-  end
-  if get(is, len(is)-1) == candidate then
-    return Some(reflect)
-  end
-  if get(g, 0) == get(g, 1) then
-    return Some(0)
-  end
-  if get(g, len(g)-2) == get(g, len(g)-1) then
-    return Some(len(g)-2)
   end
   return None
 end
 
 var fail = 0
+var i = 0
 function find_reflection(g)
   dispatch (find_reflect(g))
     (r : Some)
@@ -64,3 +68,5 @@ function find_reflection(g)
       end
   end
 end
+
+println(sum(map(grids, find_reflection))

@@ -236,6 +236,16 @@ function indices(x, f : Function)
   return result
 end
 
+function indices(x, e)
+  var result = List()
+  for i = 0, i < len(x), i += 1 do
+    if get(x, i) == e then
+      result = append(result, i)
+    end
+  end
+  return result
+end
+
 function c_eq(x, y)
   if len(x) != len(y) then
     return false
