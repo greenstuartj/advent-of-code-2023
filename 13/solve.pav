@@ -3,9 +3,6 @@ include "../base/base.pav"
 object Ash
 object Rock
 
-function repr(:Ash)  return '.' end
-function repr(:Rock) return '#' end
-
 function int(:Ash)  return 0 end
 function int(:Rock) return 1 end
 
@@ -16,10 +13,6 @@ function eq(:Rock, :Ash)  return false end
 
 record Row
   values : List
-end
-
-function repr(row : Row)
-  return reduce(map(row.values, repr), "", plus)
 end
 
 function get(row : Row, i : Int)
@@ -58,14 +51,6 @@ end
 record Smudged
   start
   finish
-end
-
-function repr(p : Perfect)
-  return "Perfect(" + repr(p.start) + ", " + repr(p.finish) + ")"
-end
-
-function repr(s : Smudged)
-  return "Smudged(" + repr(s.start) + ", " + repr(s.finish) + ")"
 end
 
 function transpose(g : Grid)
@@ -146,9 +131,6 @@ end
 function answer(x : Transposed)
   return x.reflect.start+1
 end
-
-function repr(x : Normal)     return "Normal("     + repr(x.reflect) + ")" end
-function repr(x : Transposed) return "Transposed(" + repr(x.reflect) + ")" end
 
 function get_reflections(grid : Grid)
   var result = List()
