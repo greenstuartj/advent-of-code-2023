@@ -120,12 +120,12 @@ record Normal
   reflect
 end
 
-function answer(x : Normal)
-  return (x.reflect.start+1) * 100
-end
-
 record Transposed
   reflect
+end
+
+function answer(x : Normal)
+  return (x.reflect.start+1) * 100
 end
 
 function answer(x : Transposed)
