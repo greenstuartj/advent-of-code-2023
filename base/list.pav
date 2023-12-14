@@ -31,6 +31,14 @@ function plus(x : List, y : List)
   return result
 end
 
+function hash(x : List)
+  var result = 1
+  foreach(x, function(e)
+    result = result * hash(e) * 31
+  end)
+  return result
+end
+
 function map(x, f : Function)
   var result = List()
   for i = 0, i < len(x), i += 1 do
