@@ -6,10 +6,6 @@ object Space
 object Round
 object Cube
 
-function repr(:Space) return "." end
-function repr(:Round) return "O" end
-function repr(:Cube)  return "#" end
-
 function eq(:Space, :Space) return true end
 function eq(:Round, :Round) return true end
 function eq(:Cube , :Cube)  return true end
@@ -22,34 +18,6 @@ object North
 object South
 object East
 object West
-
-function repr(:North) return "North" end
-function repr(:North) return "South" end
-function repr(:East)  return "East"  end
-function repr(:West)  return "West"  end
-
-function eq(:North, :North) return true end
-function eq(:South, :South) return true end
-function eq(:East,  :East)  return true end
-function eq(:West,  :West)  return true end
-
-function hash(:North) return 11 end
-function hash(:South) return 13 end
-function hash(:East)  return 17 end
-function hash(:West)  return 19 end
-
-function grid_copy(d)
-  var result = List()
-  for i = 0, i < len(d), i += 1 do
-    var temp = List()
-    var row = get(d, i)
-    for j = 0, j < len(row), j += 1 do
-      append(temp, get(row, j))
-    end
-    append(result, temp)
-  end
-  return result
-end
 
 function file(name)
   var lines = split(read_file(name), "\n")
@@ -183,7 +151,7 @@ function loop(d)
   var ds = List()
   var i = 0
   while !contains(states, current) do
-    var gc = grid_copy(current)
+    var gc = _copy(current)
     set(states, gc, i)
     append(ds, gc)
     cycle(current)
@@ -215,8 +183,8 @@ end
 
 var d = file(get(_args(), 2))
 
-var part1 = grid_copy(d)
+var part1 = _copy(d)
 until_unchanged(part1, North)
 println(load(part1))
 
-println(load(loop(grid_copy(d))))
+println(load(loop(_copy(d))))
