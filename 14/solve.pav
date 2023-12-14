@@ -13,12 +13,7 @@ function eq(:Round, :Round) return true end
 function eq(:Cube , :Cube)  return true end
 function eq(x, y) return false end
 
-object North
-object South
-object East
-object West
-
-function step(d, dir)
+function step(d)
   var next = List()
   for i = 0, i < len(d), i += 1 do
     var row = get(d, i)
@@ -27,12 +22,12 @@ function step(d, dir)
       dispatch (get(row, j))
         (:Round)
           var next_row = get(next, i-1)
-          dispatch (get(next_row, j), dir)
-            (:Space, :North)
+          dispatch (get(next_row, j))
+            (:Space)
               set(next_row, j, Round)
               append(temp, Space)
           and
-            (x, dir)
+            (x)
               append(temp, Round)
           end
       and
@@ -73,7 +68,7 @@ function load(d)
   return result
 end
 
-var lines = split(read_file("sample.txt"), "\n")
+var lines = split(read_file("input.txt"), "\n")
 
 var dish = List(repeat(Cube, 2+len(get(lines, 0))))
 for i = 0, i < len(lines), i += 1 do
@@ -94,4 +89,4 @@ for i = 0, i < len(lines), i += 1 do
 end
 append(dish, repeat(Cube, len(get(dish, 0))))
 
-println(load(fixed_point(dish, function(d) return step(d, North) end)))
+println(load(fixed_point(dish, step)))
