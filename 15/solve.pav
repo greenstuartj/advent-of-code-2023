@@ -1,0 +1,126 @@
+include "../base/base.pav"
+
+function HASH(s : String)
+  var current = 0
+  for i = 0, i < len(s), i += 1 do
+    current += int(get(s, i))
+    current = current * 17
+    current = current % 256
+  end
+  return current
+end
+
+function action(s : String)
+  var ac = split(s, "=")
+  if len(ac) == 1 then
+    var dl = get(ac, 0)
+    return Delete(slice(dl, 0, len(dl)-1))
+  end
+  return Insert(get(ac, 0), int(get(ac, 1)))
+end
+
+record Insert
+  key
+  value
+end
+
+record Delete
+  key
+end
+
+function repr(x : Insert)
+  return "Insert(" + repr(x.key) + ", " + repr(x.value) + ")"
+end
+
+function repr(x : Delete)
+  return "Delete(" + repr(x.key) + ")"
+end
+
+object Deleted
+
+function repr(:Deleted) return "Deleted" end
+
+record Table
+  table : List
+end
+
+function repr(x : Table)
+  return repr(x.table)
+end
+
+function Table()
+  var table = List()
+  for i = 0, i < 256, i += 1 do
+    append(table, List())
+  end
+  return Table(table)
+end
+
+function insert(x : Table, key, value)
+  var h = HASH(key)
+  var box = get(x.table, h)
+  for i = 0, i < len(box), i += 1 do
+    dispatch (get(box, i))
+      (p : Pair)
+        if p.first == key then
+          p.second = value
+          return
+        end
+    and
+      (:Deleted)
+    end
+  end
+  append(box, Pair(key, value))
+end
+
+function delete(x : Table, key)
+  var h = HASH(key)
+  var box = get(x.table, h)
+  for i = 0, i < len(box), i += 1 do
+    dispatch (get(box, i))
+      (p : Pair)
+        if p.first == key then
+          set(box, i, Deleted)
+          return
+        end
+    and
+      (:Deleted)
+    end
+  end
+end
+
+function lens_power(box_number : Int, box : List)
+  var result = 0
+  var slot = 1
+  for i = 0, i < len(box), i += 1 do
+    dispatch (get(box, i))
+      (p : Pair) result += box_number * p.second * slot
+      slot += 1
+    and
+      (:Deleted)
+    end
+  end
+  return result
+end
+
+function focusing_power(t : Table)
+  var power = 0
+  for i = 0, i < len(t.table), i += 1 do
+    power += lens_power(i+1, get(t.table, i))
+  end
+  return power
+end
+
+var steps = split(read_file("input.txt"), ",")
+
+println(sum(map(steps, HASH)))
+
+var t = Table()
+var actions = map(steps, action)
+foreach(actions, function(a : Insert)
+                   insert(t, a.key, a.value)
+                 and
+                 function(a : Delete)
+                   delete(t, a.key)
+                 end)
+println(focusing_power(t))
