@@ -1,0 +1,202 @@
+include "../base/base.pav"
+
+object Space
+object Vertical
+object Horizontal
+object LeftTilt
+object RightTilt
+object Border
+
+function repr(:Space)      return "."  end
+function repr(:Vertical)   return "|"  end
+function repr(:Horizontal) return "-"  end
+function repr(:LeftTilt)   return "\\" end
+function repr(:RightTilt)  return "/"  end
+function repr(:Border)     return "#"  end
+
+object North
+object South
+object East
+object West
+
+function repr(:North) return "North" end
+function repr(:South) return "South" end
+function repr(:East)  return "East"  end
+function repr(:West)  return "West"  end
+
+function hash(:North) return 3  end
+function hash(:South) return 5  end
+function hash(:East)  return 7  end
+function hash(:West)  return 11 end
+
+function eq(:North, :North) return true end
+function eq(:South, :South) return true end
+function eq(:East,  :East)  return true end
+function eq(:West,  :West)  return true end
+function eq(x, y)           return false end
+
+
+function moves(grid, position : Coord, dir : North)
+  var p = Coord(position.row-1, position.col)
+  dispatch (get(get(grid, p.row), p.col))
+    (:Border)
+      return List()
+  and
+    (:Vertical)
+      return List(Pair(p, dir))
+  and
+    (:Horizontal)
+      return List(Pair(p, West), Pair(p, East))
+  and
+    (:LeftTilt)
+      return List(Pair(p, West))
+  and
+    (:RightTilt)
+      return List(Pair(p, East))
+  and
+    (x)
+      return List(Pair(p, dir))
+  end
+end
+
+function moves(grid, position : Coord, dir : South)
+  var p = Coord(position.row+1, position.col)
+  dispatch (get(get(grid, p.row), p.col))
+    (:Border)
+      return List()
+  and
+    (:Vertical)
+      return List(Pair(p, dir))
+  and
+    (:Horizontal)
+      return List(Pair(p, West), Pair(p, East))
+  and
+    (:LeftTilt)
+      return List(Pair(p, East))
+  and
+    (:RightTilt)
+      return List(Pair(p, West))
+  and
+    (x)
+      return List(Pair(p, dir))
+  end
+end
+
+function moves(grid, position : Coord, dir : East)
+  var p = Coord(position.row, position.col+1)
+  dispatch (get(get(grid, p.row), p.col))
+    (:Border)
+      return List()
+  and
+    (:Vertical)
+      return List(Pair(p, North), Pair(p, South))
+  and
+    (:Horizontal)
+      return List(Pair(p, dir))
+  and
+    (:LeftTilt)
+      return List(Pair(p, South))
+  and
+    (:RightTilt)
+      return List(Pair(p, North))
+  and
+    (x)
+      return List(Pair(p, dir))
+  end
+end
+
+function moves(grid, position : Coord, dir : West)
+  var p = Coord(position.row, position.col-1)
+  dispatch (get(get(grid, p.row), p.col))
+    (:Border)
+      return List()
+  and
+    (:Vertical)
+      return List(Pair(p, North), Pair(p, South))
+  and
+    (:Horizontal)
+      return List(Pair(p, dir))
+  and
+    (:LeftTilt)
+      return List(Pair(p, North))
+  and
+    (:RightTilt)
+      return List(Pair(p, South))
+  and
+    (x)
+      return List(Pair(p, dir))
+  end
+end
+
+function move(grid, start : Pair, ray : Pair, energised : Set, done : Set)
+  if contains(done, ray) then
+    return
+  end
+  dispatch (get(get(grid, ray.first.row), ray.first.col))
+    (:Border)
+      if ray != start then
+        return
+      end
+  and
+    (x)   
+  end
+  insert(energised, ray.first)
+  insert(done, ray)
+  var ms = moves(grid, ray.first, ray.second)
+  foreach(ms, function(m)
+    move(grid, start, m, energised, done)
+  end)
+end
+
+var lines = split(read_file("input.txt"), "\n")
+
+var grid = List(repeat(Border, 2+len(get(lines, 0))))
+for i = 0, i < len(lines), i += 1 do
+  var row = get(lines, i)
+  var temp = List(Border)
+  for j = 0, j < len(row), j += 1 do
+    var c = get(row, j)
+    if c == '.' then
+      append(temp, Space)
+    elif c == '|' then
+      append(temp, Vertical)
+    elif c == '-' then
+      append(temp, Horizontal)
+    elif c == '\\' then
+      append(temp, LeftTilt)
+    elif c == '/' then
+      append(temp, RightTilt)
+    else
+      _panic(repr(c))
+    end
+  end
+  append(temp, Border)
+  append(grid, temp)
+end
+append(grid, repeat(Border, 2+len(get(lines, 0))))
+
+function solve(grid, start : Pair)
+  var energised = Set()
+  var done = Set()
+  move(grid, start, start, energised, done)
+  return len(energised)-1
+end
+
+println(solve(grid, Pair(Coord(1,0), East)))
+
+var starts = List()
+for i = 0, i < len(grid), i += 1 do
+  append(starts, Pair(Coord(i, 0), East))
+  append(starts, Pair(Coord(i, len(get(grid, 0))-1), West))
+end
+for i = 0, i < len(get(grid, 0)), i += 1 do
+  append(starts, Pair(Coord(0, i), South))
+  append(starts, Pair(Coord(len(grid)-1, i), North))
+end
+
+var results = List()
+foreach(starts, function(start)
+  append(results, solve(grid, start))
+end)
+
+println(reduce(results, max))
