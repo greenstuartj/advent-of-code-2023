@@ -1,0 +1,42 @@
+
+record Queue
+  q : List
+  first : Int
+  last  : Int
+end
+
+function repr(x : Queue)
+  var s = "Queue("
+  for i = x.first, i < x.last, i += 1 do
+    s += repr(get(x.list, i))
+    s += ", "
+  end
+  return s + ")"
+end
+
+function Queue()
+  return Queue(List(), 0, 0)
+end
+
+function is_empty(x : Queue)
+  return x.first >= x.last
+end
+
+function push(x : Queue, v)
+  append(x.q, v)
+  x.last += 1
+end
+
+function pop(x : Queue)
+  if is_empty(x) then
+    _panic("(pop) empty queue")
+  end
+  var v = get(x.q, x.first)
+  x.first += 1
+  if is_empty(x) then
+    x.q = List()
+    x.first = 0
+    x.last = 0
+  end
+  return v
+end

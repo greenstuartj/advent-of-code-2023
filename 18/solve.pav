@@ -1,0 +1,87 @@
+include "../base/base.pav"
+
+object Up
+object Down
+object Left
+object Right
+
+function repr(:Up)    return "Up"    end
+function repr(:Down)  return "Down"  end
+function repr(:Left)  return "Left"  end
+function repr(:Right) return "Right" end
+
+function eq(:Up, :Up)       return true  end
+function eq(:Down, :Down)   return true  end
+function eq(:Left, :Left)   return true  end
+function eq(:Right, :Right) return true  end
+function eq(x, y)           return false end
+
+function to_dir(s : String)
+  if   s == "U" then return Up
+  elif s == "D" then return Down
+  elif s == "L" then return Left
+  elif s == "R" then return Right
+  end
+end
+
+record Dig
+  direction
+  length
+  colour
+end
+
+function Dig(s : String)
+  var sl = split(s, " ")
+  return Dig(to_dir(get(sl, 0)), int(get(sl, 1)), get(sl, 2))
+end
+
+function repr(x : Dig)
+  return "Dig(" + repr(x.direction) + ", " + repr(x.length) + ", " + repr(x.colour) + ")"
+end
+
+function move(c : Coord, :Up)    return Coord(c.row-1, c.col) end
+function move(c : Coord, :Down)  return Coord(c.row+1, c.col) end
+function move(c : Coord, :Left)  return Coord(c.row, c.col-1) end
+function move(c : Coord, :Right) return Coord(c.row, c.col+1) end
+
+function fill(c : Coord, hole : Set)
+  if contains(hole, c) then
+    return
+  end
+  insert(hole, c)
+  foreach(List(Up, Down, Left, Right), function(d)
+    fill(move(c, d), hole)
+  end)
+end
+
+var instructions = map(split(read_file("input.txt"), "\n"), Dig)
+
+var hole = Set()
+var current = Coord(0, 0)
+insert(hole, current)
+for i = 0, i < len(instructions), i += 1 do
+  var instruction = get(instructions, i)
+  for j = 0, j < instruction.length, j += 1 do
+    current = move(current, instruction.direction)
+    insert(hole, current)
+  end
+end
+
+current = Coord(0, 0)
+for i = 0, i < len(instructions), i += 1 do
+  var instruction = get(instructions, i)
+  for j = 0, j < instruction.length, j += 1 do
+    current = move(current, instruction.direction)
+    if instruction.direction == Right then
+      fill(move(current, Down), hole)
+    elif instruction.direction == Left then
+      fill(move(current, Up), hole)
+    elif instruction.direction == Up then
+      fill(move(current, Right), hole)
+    elif instruction.direction == Down then
+      fill(move(current, Left), hole)
+    end
+  end
+end
+
+println(len(hole))
