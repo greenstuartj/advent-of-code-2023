@@ -5,11 +5,6 @@ object Down
 object Left
 object Right
 
-function repr(:Up)    return "Up"    end
-function repr(:Down)  return "Down"  end
-function repr(:Left)  return "Left"  end
-function repr(:Right) return "Right" end
-
 function eq(:Up, :Up)       return true  end
 function eq(:Down, :Down)   return true  end
 function eq(:Left, :Left)   return true  end
@@ -64,10 +59,6 @@ function Dig(d : Dig)
   var length = from_hex(slice(d.colour, 2, len(d.colour)-2))
   var direction = to_dir(get(d.colour, len(d.colour)-2))
   return Dig(direction, length, d.length)
-end
-
-function repr(x : Dig)
-  return "Dig(" + repr(x.direction) + ", " + repr(x.length) + ", " + repr(x.colour) + ")"
 end
 
 function shoelace(points)
