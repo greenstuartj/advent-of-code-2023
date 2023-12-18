@@ -1,0 +1,119 @@
+
+record Heap
+  heap : List
+  last : Int
+end
+
+object InfLowPriority
+object InfHighPriority
+
+function inner_priority(:InfHighPriority, :InfHighPriority) return false end
+function inner_priority(:InfLowPriority,  :InfLowPriority)  return false end
+function inner_priority(:InfHighPriority, y)                return true  end
+function inner_priority(:InfLowPriority,  y)                return false end
+function inner_priority(x,                :InfHighPriority) return false end
+function inner_priority(x,                :InfLowPriority)  return true  end
+
+function inner_priority(x, y) return higher_priority(x, y) end
+
+function Heap()
+  return Heap(List(), 0)
+end
+
+function left_of(i : Int)
+  return 2*i+1
+end
+
+function right_of(i : Int)
+  return 2*i+2
+end
+
+function root_of(i : Int)
+  if i % 2 == 0 then
+    return (i-2)/2
+  else
+    return (i-1)/2
+  end
+end
+
+function get(h : Heap, i : Int)
+  if i < 0 then
+    return InfHighPriority
+  end
+  if i >= h.last then
+    return InfLowPriority
+  end
+  return get(h.heap, i)
+end
+
+function swap(x : List, i : Int, j : Int)
+  var temp = get(x, i)
+  set(x, i, get(x, j))
+  set(x, j, temp)
+end
+
+function swim(h : Heap, i : Int)
+  var current = i
+  var root = root_of(current)
+  while
+    inner_priority(get(h, current), get(h, root))
+  do
+    swap(h.heap, root, current)
+    current = root
+    root = root_of(current)
+  end
+end
+
+function sink(h : Heap, i : Int)
+  var current = i
+  var left = left_of(current)
+  var right = right_of(current)
+  while true do
+    dispatch (get(h, left), get(h, right))
+      (:InfLowPriority, :InfLowPriority)
+        return
+    and
+      (x, :InfLowPriority)
+        swap(h.heap, current, left)
+        current = left
+        left = left_of(current)
+        right = right_of(current)
+    and
+      (x, y)
+        if higher_priority(x, y) then
+          swap(h.heap, current, left)
+          current = left
+          left = left_of(current)
+          right = right_of(current)
+        else
+          swap(h.heap, current, right)
+          current = right
+          left = left_of(current)
+          right = right_of(current)
+        end
+    end
+  end
+end
+
+function push(h : Heap, value)
+  append(h.heap, value)
+  h.last += 1
+  swim(h, h.last-1)
+end
+
+function pop(h : Heap)
+  if h.last == 0 then
+    _panic("(heap pop) empty")
+  end
+  var root = get(h.heap, 0)
+  if h.last > 0 then
+    set(h.heap, 0, get(h.heap, h.last-1))
+    sink(h, 0)
+  end
+  h.last -= 1
+  if h.last == 0 then
+    h.heap = List()
+  end
+  return root
+end
+
