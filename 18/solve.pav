@@ -24,6 +24,31 @@ function to_dir(s : String)
   end
 end
 
+function to_dir(c : Char)
+  if   c == '0' then return Right
+  elif c == '1' then return Down
+  elif c == '2' then return Left
+  elif c == '3' then return Up
+  end
+end
+
+function exp(x, y)
+  var result = 1
+  for i = 0, i < y, i += 1 do
+    result = result * x
+  end
+  return result
+end
+
+function from_hex(s : String)
+  var t = "0123456789abcdef"
+  var result = 0
+  for i = 0, i < len(s), i += 1 do
+    result += index(t, get(s, i)) * exp(16, (len(s)-1)-i)
+  end
+  return result
+end
+
 record Dig
   direction
   length
@@ -35,53 +60,45 @@ function Dig(s : String)
   return Dig(to_dir(get(sl, 0)), int(get(sl, 1)), get(sl, 2))
 end
 
+function Dig(d : Dig)
+  var length = from_hex(slice(d.colour, 2, len(d.colour)-2))
+  var direction = to_dir(get(d.colour, len(d.colour)-2))
+  return Dig(direction, length, d.length)
+end
+
 function repr(x : Dig)
   return "Dig(" + repr(x.direction) + ", " + repr(x.length) + ", " + repr(x.colour) + ")"
 end
 
-function move(c : Coord, :Up)    return Coord(c.row-1, c.col) end
-function move(c : Coord, :Down)  return Coord(c.row+1, c.col) end
-function move(c : Coord, :Left)  return Coord(c.row, c.col-1) end
-function move(c : Coord, :Right) return Coord(c.row, c.col+1) end
-
-function fill(c : Coord, hole : Set)
-  if contains(hole, c) then
-    return
+function shoelace(points)
+  var a = 0
+  var b = 0
+  for i = 0, i < len(points), i += 1 do
+    var c1 = get(points, i)
+    var c2 = get(points, (i+1)%len(points))
+    a += c1.row * c2.col
+    b += c1.col * c2.row
   end
-  insert(hole, c)
-  foreach(List(Up, Down, Left, Right), function(d)
-    fill(move(c, d), hole)
+  return abs(abs(a) - abs(b))
+end
+
+function move(c : Coord, length, :Up)    return Coord(c.row-length, c.col) end
+function move(c : Coord, length, :Down)  return Coord(c.row+length, c.col) end
+function move(c : Coord, length, :Left)  return Coord(c.row, c.col-length) end
+function move(c : Coord, length, :Right) return Coord(c.row, c.col+length) end
+
+function solve(instructions)
+  var points = List()
+  var current = Coord(0, 0)
+  append(points, current)
+  foreach(instructions, function(instruction)
+    current = move(current, instruction.length, instruction.direction)
+    append(points, current)
   end)
+  println(((shoelace(points) + sum(map(instructions, function(i) return i.length end))) / 2) + 1)
 end
 
 var instructions = map(split(read_file("input.txt"), "\n"), Dig)
 
-var hole = Set()
-var current = Coord(0, 0)
-insert(hole, current)
-for i = 0, i < len(instructions), i += 1 do
-  var instruction = get(instructions, i)
-  for j = 0, j < instruction.length, j += 1 do
-    current = move(current, instruction.direction)
-    insert(hole, current)
-  end
-end
-
-current = Coord(0, 0)
-for i = 0, i < len(instructions), i += 1 do
-  var instruction = get(instructions, i)
-  for j = 0, j < instruction.length, j += 1 do
-    current = move(current, instruction.direction)
-    if instruction.direction == Right then
-      fill(move(current, Down), hole)
-    elif instruction.direction == Left then
-      fill(move(current, Up), hole)
-    elif instruction.direction == Up then
-      fill(move(current, Right), hole)
-    elif instruction.direction == Down then
-      fill(move(current, Left), hole)
-    end
-  end
-end
-
-println(len(hole))
+solve(instructions)
+solve(map(instructions, Dig))
