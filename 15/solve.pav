@@ -60,7 +60,7 @@ function insert(x : Table, key, value)
   var h = HASH(key)
   var box = get(x.table, h)
   for i = 0, i < len(box), i += 1 do
-    dispatch (get(box, i))
+    dispatch get(box, i) do
       (p : Pair)
         if p.first == key then
           p.second = value
@@ -77,7 +77,7 @@ function delete(x : Table, key)
   var h = HASH(key)
   var box = get(x.table, h)
   for i = 0, i < len(box), i += 1 do
-    dispatch (get(box, i))
+    dispatch get(box, i) do
       (p : Pair)
         if p.first == key then
           set(box, i, Deleted)
@@ -93,7 +93,7 @@ function lens_power(box_number : Int, box : List)
   var result = 0
   var slot = 1
   for i = 0, i < len(box), i += 1 do
-    dispatch (get(box, i))
+    dispatch get(box, i) do
       (p : Pair) result += box_number * p.second * slot
       slot += 1
     and

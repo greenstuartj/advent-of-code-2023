@@ -31,7 +31,7 @@ function push(x : Stack, v)
 end
 
 function pop(x : Stack)
-  dispatch (x.stack)
+  dispatch x.stack do
     (y : StackEnd) _panic("(pop) empty stack")
   and
     (y : StackNode)
@@ -42,7 +42,7 @@ function pop(x : Stack)
 end
 
 function top(x : Stack)
-  dispatch (x.stack)
+  dispatch x.stack do
     (y : StackEnd) _panic("(top) empty stack")
   and
     (y : StackNode) return y.value

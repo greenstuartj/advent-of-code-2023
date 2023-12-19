@@ -79,7 +79,7 @@ function flood(m : Maze, l : Coord, d, inside : Set, ls : Set)
   function look(d)
     return flood(m, get(m, move(d, l)), inside, ls)
   end
-  dispatch (get(m, l).type, d)
+  dispatch get(m, l).type, d do
       (:Vert,     :Down)  look(Left)
   and (:Vert,     :Up)    look(Right)
   and (:Horiz,    :Left)  look(Up)

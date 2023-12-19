@@ -47,9 +47,9 @@ function shift(d, :North)
   for i = 0, i < len(d), i += 1 do
     var row = get(d, i)
     for j = 0, j < len(row), j += 1 do
-      dispatch (get(row, j))
+      dispatch get(row, j) do
         (:Round)
-	  dispatch (get(get(d, i-1), j))
+	  dispatch get(get(d, i-1), j) do
 	    (:Space)
 	      set(get(d, i-1), j, Round)
 	      set(row, j, Space)
@@ -70,9 +70,9 @@ function shift(d, :South)
   for i = len(d)-1, i >= 0, i -= 1 do
     var row = get(d, i)
     for j = 0, j < len(row), j += 1 do
-      dispatch (get(row, j))
+      dispatch get(row, j) do
         (:Round)
-	  dispatch (get(get(d, i+1), j))
+	  dispatch get(get(d, i+1), j) do
 	    (:Space)
 	      set(get(d, i+1), j, Round)
 	      set(row, j, Space)
@@ -93,9 +93,9 @@ function shift(d, :East)
   for i = 0, i < len(d), i += 1 do
     var row = get(d, i)
     for j = len(row)-1, j >= 0, j -= 1 do
-      dispatch (get(row, j))
+      dispatch get(row, j) do
         (:Round)
-	  dispatch (get(row, j+1))
+	  dispatch get(row, j+1) do
 	    (:Space)
 	      set(row, j+1, Round)
 	      set(row, j, Space)
@@ -116,9 +116,9 @@ function shift(d, :West)
   for i = 0, i < len(d), i += 1 do
     var row = get(d, i)
     for j = 0, j < len(row), j += 1 do
-      dispatch (get(row, j))
+      dispatch get(row, j) do
         (:Round)
-	  dispatch (get(row, j-1))
+	  dispatch get(row, j-1) do
 	    (:Space)
 	      set(row, j-1, Round)
 	      set(row, j, Space)
@@ -169,7 +169,7 @@ function load(d)
   for i = 1, i < len(d), i += 1 do
     var row = get(d, i)
     for j = 0, j < len(row), j += 1 do
-      dispatch (get(row, j))
+      dispatch get(row, j) do
         (:Round)
           result += row_n
       and

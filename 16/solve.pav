@@ -38,7 +38,7 @@ function eq(x, y)           return false end
 
 function moves(grid, position : Coord, dir : North)
   var p = Coord(position.row-1, position.col)
-  dispatch (get(get(grid, p.row), p.col))
+  dispatch get(get(grid, p.row), p.col) do
     (:Border)
       return List()
   and
@@ -61,7 +61,7 @@ end
 
 function moves(grid, position : Coord, dir : South)
   var p = Coord(position.row+1, position.col)
-  dispatch (get(get(grid, p.row), p.col))
+  dispatch get(get(grid, p.row), p.col) do
     (:Border)
       return List()
   and
@@ -84,7 +84,7 @@ end
 
 function moves(grid, position : Coord, dir : East)
   var p = Coord(position.row, position.col+1)
-  dispatch (get(get(grid, p.row), p.col))
+  dispatch get(get(grid, p.row), p.col) do
     (:Border)
       return List()
   and
@@ -107,7 +107,7 @@ end
 
 function moves(grid, position : Coord, dir : West)
   var p = Coord(position.row, position.col-1)
-  dispatch (get(get(grid, p.row), p.col))
+  dispatch get(get(grid, p.row), p.col) do
     (:Border)
       return List()
   and
@@ -132,7 +132,7 @@ function move(grid, start : Pair, ray : Pair, energised : Set, done : Set)
   if contains(done, ray) then
     return
   end
-  dispatch (get(get(grid, ray.first.row), ray.first.col))
+  dispatch get(get(grid, ray.first.row), ray.first.col) do
     (:Border)
       if ray != start then
         return

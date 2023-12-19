@@ -74,7 +74,7 @@ end
 
 function lookup(r : Range, rml : List)
   for i = 0, i < len(rml), i += 1 do
-    dispatch (lookup(r, get(rml, i)))
+    dispatch lookup(r, get(rml, i)) do
       (v : Some) return v.value
     and
       (v : None)

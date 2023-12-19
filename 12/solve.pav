@@ -82,7 +82,7 @@ function no_damaged(:LLEnd)
 end
 
 function no_damaged(r : LL)
-  dispatch (r.value)
+  dispatch r.value do
     (:Damaged) return 0
   and
     (x) return no_damaged(r.next)
@@ -128,7 +128,7 @@ function step(r : LL, :Started, cn : Int, ns : LLEnd)
   if cn == 0 then
     result =  no_damaged(r)
   else
-    dispatch (r.value)
+    dispatch r.value do
       (:Operational) result = 0
     and
       (x)
@@ -149,7 +149,7 @@ function step(r : LL, :NotStarted, cn : Int, ns : LL)
     return get(memo, Pair(r, ns))
   end
   var result = 0
-  dispatch (r.value)
+  dispatch r.value do
     (:Operational)
       result = step(r.next, NotStarted, cn, ns)
   and
@@ -164,7 +164,7 @@ function step(r : LL, :NotStarted, cn : Int, ns : LL)
 end
 
 function step(r : LL, :ExpectOperational, cn : Int, ns : LL)
-  dispatch (r.value)
+  dispatch r.value do
     (:Operational)
       return step(r.next, NotStarted, cn, ns)
   and
@@ -177,7 +177,7 @@ function step(r : LL, :ExpectOperational, cn : Int, ns : LL)
 end
 
 function step(r : LL, :Started, cn : Int, ns : LL)
-  dispatch (r.value)
+  dispatch r.value do
     (:Operational)
       return 0
   and

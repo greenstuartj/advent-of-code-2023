@@ -4,6 +4,18 @@ record Heap
   last : Int
 end
 
+function repr(x : Heap)
+  var s = "Heap("
+  for i = 0, i < x.last, i += 1 do
+    s += repr(get(x, i))
+    if i != x.last - 1 then
+      s += ", "
+    end
+  end
+  s += ")"
+  return s
+end
+
 object InfLowPriority
 object InfHighPriority
 
@@ -69,7 +81,7 @@ function sink(h : Heap, i : Int)
   var left = left_of(current)
   var right = right_of(current)
   while true do
-    dispatch (get(h, left), get(h, right))
+    dispatch get(h, left), get(h, right) do
       (:InfLowPriority, :InfLowPriority)
         return
     and

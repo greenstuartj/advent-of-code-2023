@@ -26,7 +26,7 @@ end
 function repr(x : Set)
   var result = "Set("
   for i = 0, i < len(x.table.table), i += 1 do
-    dispatch (get(x.table.table, i))
+    dispatch get(x.table.table, i) do
       (kv : KeyValue)
         result += repr(kv.key)
         result += ", "
@@ -59,7 +59,7 @@ end
 
 function foreach(x : Set, f : Function)
   for i = 0, i < len(x.table.table), i += 1 do
-    dispatch (get(x.table.table, i))
+    dispatch get(x.table.table, i) do
       (kv : KeyValue) f(kv.key)
     and
       (e)

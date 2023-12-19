@@ -197,7 +197,7 @@ end
 
 function foreach(x : Dict, f : Function)
   for i = 0, i < len(x.table), i += 1 do
-    dispatch (get(x.table, i))
+    dispatch get(x.table, i) do
       (kv : KeyValue) f(kv.key, kv.value)
     and
       (e)
@@ -208,7 +208,7 @@ end
 function filter(x : Dict, key_f : Function, value_f : Function)
   var result = Dict(len(x.table))
   for i = 0, i < len(x.table), i += 1 do
-    dispatch (get(x.table, i))
+    dispatch get(x.table, i) do
       (kv : KeyValue)
         if key_f(kv.key) & value_f(kv.value) then
           set(result, kv.key, kv.value)
@@ -223,7 +223,7 @@ end
 function reduce(x : Dict, initial, f : Function)
   var result = initial
   for i = 0, i < len(x.table), i += 1 do
-    dispatch (get(x.table, i))
+    dispatch get(x.table, i) do
       (kv : KeyValue)
         result = f(result, kv.value)
     and
@@ -236,7 +236,7 @@ end
 function merge(d1 : Dict, d2 : Dict, confict_f : Function)
   var result = d1
   for i = 0, i < len(x.table), i += 1 do
-    dispatch (get(x.table, i))
+    dispatch get(x.table, i) do
       (kv : KeyValue)
         if contains(result, kv.key) then
           set(result, kv.key, conflict_f(get(result, kv.key), kv.value))

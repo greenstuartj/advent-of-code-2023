@@ -91,7 +91,7 @@ end
 function get_reflections(grid)
   var result = List()
   foreach(find_same(grid), function(e)
-    dispatch (expand_same(grid, e, e))
+    dispatch expand_same(grid, e, e) do
       (x : Some) append(result, x.value)
     and
       (:None)
