@@ -342,3 +342,12 @@ function sort_with(x : List, sort_f : Function)
   var second = slice(x, len(x)/2)
   return merge_with(sort_with(first, sort_f), sort_with(second, sort_f), sort_f)
 end
+
+function contains(x, e)
+  for i = 0, i < len(x), i += 1 do
+    if get(x, i) == e then
+      return true
+    end
+  end
+  return false
+end

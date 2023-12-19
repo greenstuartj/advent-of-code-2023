@@ -137,3 +137,4 @@ function foreach(x : String, f : Function)
   end
   return result
 end
+

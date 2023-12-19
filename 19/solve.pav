@@ -1,0 +1,126 @@
+include "../base/base.pav"
+
+object Next
+
+function eq(:Next, :Next) return true  end
+function eq(:Next, y)     return false end
+function eq(x,     :Next) return false end
+
+record Part
+  x : Int
+  m : Int
+  a : Int
+  s : Int
+end
+
+function Part(s : String)
+  var fields = map(split(slice(s, 1, len(s)-1), ","), function(kv)
+    return int(get(split(kv, "="), 1))
+  end)
+  return Part(get(fields, 0), get(fields, 1), get(fields, 2), get(fields, 3))
+end
+
+function sum(x : Part)
+  return x.x + x.m + x.a + x.s
+end
+
+object A
+object R
+
+record Test
+  target
+  test : Function
+  value : Int
+  result
+end
+
+record Workflow
+  tests : List
+end
+
+function parse_test(s : String)
+  if   s == "A" then return A
+  elif s == "R" then return R
+  elif contains(s, '<') then
+    var x = split(s, ":")
+    var y = split(get(x, 0), "<")
+    var r = parse_test(get(x, 1))
+    return Test(get(y, 0), lt, int(get(y, 1)), r)
+  elif contains(s, '>') then
+    var x = split(s, ":")
+    var y = split(get(x, 0), ">")
+    var r = parse_test(get(x, 1))
+    return Test(get(y, 0), gt, int(get(y, 1)), r)
+  else
+    return s
+  end
+end
+
+function parse_tests(s : String)
+  var st = split(s, ",")
+  return map(st, parse_test)
+end
+
+function parse_workflow(s : String)
+  var i = 0
+  var name = ""
+  while get(s, i) != '{' do
+    name += get(s, i)
+    i += 1
+  end
+  i += 1
+  s = slice(s, i, len(s)-1)
+  return Pair(name, Workflow(parse_tests(s)))
+end
+
+function eval(p : Part, :A, wft : Dict)
+  return true
+end
+
+function eval(p : Part, :R, wft : Dict)
+  return false
+end
+
+function eval(p : Part, s : String, wft : Dict)
+  return eval(p, get(wft, s), wft)
+end
+
+function eval(p : Part, t : Test, wft : Dict)
+  var v = 0
+  if   t.target == "x" then
+    v = p.x
+  elif t.target == "m" then
+    v = p.m
+  elif t.target == "a" then
+    v = p.a
+  elif t.target == "s" then
+    v = p.s
+  end
+  if t.test(v, t.value) then
+    return eval(p, t.result, wft)
+  else
+    return Next
+  end
+end
+
+function eval(p : Part, wf : Workflow, wft : Dict)
+  var i = 0
+  var result = Next
+  while result == Next do
+    result = eval(p, get(wf.tests, i), wft)
+    i += 1
+  end
+  return result
+end
+
+var sections = split(read_file("input.txt"), "\n\n")
+var workflows = split(get(sections, 0), "\n")
+var parts = map(split(get(sections, 1), "\n"), Part)
+
+var workflow_table = Dict()
+foreach(workflows, function(wf)
+  var p = parse_workflow(wf)
+  set(workflow_table, p.first, p.second)
+end)
+
+println(sum(map(filter(parts, function(p) return eval(p, get(workflow_table, "in"), workflow_table) end), sum)))
