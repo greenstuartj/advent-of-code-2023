@@ -1,0 +1,217 @@
+include "../base/base.pav"
+
+record Bounds
+  min : Int
+  max : Int
+end
+
+function rng(x : Bounds)
+  return x.max - (x.min-1)
+end
+
+record Part
+  x : Bounds
+  m : Bounds
+  a : Bounds
+  s : Bounds
+end
+
+function comb(p : Part)
+  return rng(p.x) * rng(p.m) * rng(p.a) * rng(p.s)
+end
+
+object LT
+object LE
+object GT
+object GE
+
+function flip(:LT) return GE end
+function flip(:GT) return LE end
+
+function cut(p : Part, target : String, :LT, value : Int)
+  var r = Part(Bounds(p.x.min, p.x.max),
+               Bounds(p.m.min, p.m.max),
+	       Bounds(p.a.min, p.a.max),
+	       Bounds(p.s.min, p.s.max))
+  if   target == "x" then
+    if p.x.max > value then
+      r.x.max = value-1
+    end
+  elif target == "m" then
+    if p.m.max > value then
+      r.m.max = value-1
+    end
+  elif target == "a" then
+    if p.a.max > value then
+      r.a.max = value-1
+    end
+  elif target == "s" then
+    if p.s.max > value then
+      r.s.max = value-1
+    end
+  end
+  return r
+end
+
+function cut(p : Part, target : String, :LE, value : Int)
+  var r = Part(Bounds(p.x.min, p.x.max),
+               Bounds(p.m.min, p.m.max),
+	       Bounds(p.a.min, p.a.max),
+	       Bounds(p.s.min, p.s.max))
+  if   target == "x" then
+    if p.x.max > value then
+      r.x.max = value
+    end
+  elif target == "m" then
+    if p.m.max > value then
+      r.m.max = value
+    end
+  elif target == "a" then
+    if p.a.max > value then
+      r.a.max = value
+    end
+  elif target == "s" then
+    if p.s.max > value then
+      r.s.max = value
+    end
+  end
+  return r
+end
+
+function cut(p : Part, target : String, :GT, value : Int)
+  var r = Part(Bounds(p.x.min, p.x.max),
+               Bounds(p.m.min, p.m.max),
+	       Bounds(p.a.min, p.a.max),
+	       Bounds(p.s.min, p.s.max))
+  if   target == "x" then
+    if p.x.min < value then
+      r.x.min = value+1
+    end
+  elif target == "m" then
+    if p.m.min < value then
+      r.m.min = value+1
+    end
+  elif target == "a" then
+    if p.a.min < value then
+      r.a.min = value+1
+    end
+  elif target == "s" then
+    if p.s.min < value then
+      r.s.min = value+1
+    end
+  end
+  return r
+end
+
+function cut(p : Part, target : String, :GE, value : Int)
+  var r = Part(Bounds(p.x.min, p.x.max),
+               Bounds(p.m.min, p.m.max),
+	       Bounds(p.a.min, p.a.max),
+	       Bounds(p.s.min, p.s.max))
+  if   target == "x" then
+    if p.x.min < value then
+      r.x.min = value
+    end
+  elif target == "m" then
+    if p.m.min < value then
+      r.m.min = value
+    end
+  elif target == "a" then
+    if p.a.min < value then
+      r.a.min = value
+    end
+  elif target == "s" then
+    if p.s.min < value then
+      r.s.min = value
+    end
+  end
+  return r
+end
+
+object A
+object R
+
+record Test
+  target
+  test
+  value : Int
+  pass
+  fail
+end
+
+function parse_test(s : String)
+  if   s == "A" then
+    return A
+  elif s == "R" then
+    return R
+  elif contains(s, '<') then
+    var x = split(s, ":")
+    var y = split(get(x, 0), "<")
+    var r = parse_test(get(x, 1))
+    return Test(get(y, 0), LT, int(get(y, 1)), r, R)
+  elif contains(s, '>') then
+    var x = split(s, ":")
+    var y = split(get(x, 0), ">")
+    var r = parse_test(get(x, 1))
+    return Test(get(y, 0), GT, int(get(y, 1)), r, R)
+  else
+    return s
+  end
+end
+
+function parse_tests(s : String)
+  var sp = split(s, ",")
+  var st = Stack(reverse(sp))
+  var t = pop(st)
+  var result = parse_test(t)
+  while !is_empty(st) do
+    t = pop(st)
+    var temp = parse_test(t)
+    temp.fail = result
+    result = temp
+  end
+  return result
+end
+
+function parse_workflow(s : String)
+  var i = 0
+  var name = ""
+  while get(s, i) != '{' do
+    name += get(s, i)
+    i += 1
+  end
+  i += 1
+  s = slice(s, i, len(s)-1)
+  return Pair(name, parse_tests(s))
+end
+
+function eval(p : Part, :A, wft : Dict, result : List)
+  append(result, p)
+end
+
+function eval(p : Part, :R, wft : Dict, result : List)
+end
+
+function eval(p : Part, s : String, wft : Dict, result : List)
+  eval(p, get(wft, s), wft, result)
+end
+
+function eval(p : Part, t : Test, wft : Dict, result : List)
+  var pass = cut(p, t.target, t.test, t.value)
+  var fail = cut(p, t.target, flip(t.test), t.value)
+  eval(pass, t.pass, wft, result)
+  eval(fail, t.fail, wft, result)
+end
+
+var sections = split(read_file("input.txt"), "\n\n")
+var workflows = split(get(sections, 0), "\n")
+
+var workflow_table = Dict()
+foreach(workflows, function(wf)
+  var p = parse_workflow(wf)
+  set(workflow_table, p.first, p.second)
+end)
+
+var result = List()
+eval(Part(Bounds(1, 4000),Bounds(1, 4000),Bounds(1, 4000),Bounds(1, 4000)), get(workflow_table, "in"), workflow_table, result)
+println(sum(map(result, comb)))
