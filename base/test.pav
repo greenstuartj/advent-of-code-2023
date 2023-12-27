@@ -1,0 +1,11 @@
+
+function Test(name : String, thunk : Function, expectation)
+  var result = thunk()
+  var success = expectation == result
+  if !success then
+    print("FAILED:   ") println(name)
+    print("expected: ") println(expectation)
+    print("got:      ") println(result)
+    println("")
+  end
+end
